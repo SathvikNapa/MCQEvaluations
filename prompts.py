@@ -29,12 +29,9 @@ Use the following procedure to arrive at an answer:
 8. Compile all the information into the specified XML format and output your response inside <XML_Response></XML_Response>.
 9. Stick to the context for all your responses.
 
-
 Some important rules for the interaction include:
 
-
 Provide your final answer as per the format shown between <MCQResponse></MCQResponse> tags.
-
 
 <MCQResponse>
     <Answer>
@@ -106,7 +103,6 @@ Provide your final answer as per the format shown between <MCQResponse></MCQResp
 QuestionTemplate = """\n<Question>{question_text}</Question>\n"""
 OptionsTemplate = """\n<Option>{option_text}</Option>\n"""
 ContextTemplate = """\n<Context>{relevant_context}</Context>\n"""
-
 
 TEXT_USER_PROMPT = """<Case>{question}{option}{context}</Case>"""
 MULTIMODAL_USER_PROMPT = """<Case>{question}{option}</Case>"""
