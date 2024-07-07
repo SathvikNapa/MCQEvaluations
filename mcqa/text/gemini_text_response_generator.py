@@ -1,7 +1,8 @@
-from models.domain.text_response_generator import TextResponseGenerator
-from models.text.config.gemini_text_config import GeminiTextConfig
-
 import google.generativeai as genai
+
+from mcqa.domain.response_generator import GeneratorResponse, ResponseMetadata
+from mcqa.domain.text_response_generator import TextResponseGenerator
+from mcqa.text.config.gemini_text_config import GeminiTextConfig
 
 
 class GeminiTextResponseGenerator(TextResponseGenerator):
@@ -35,5 +36,4 @@ class GeminiTextResponseGenerator(TextResponseGenerator):
             str: The generated response text.
         """
         response = self.llm_model.generate_content([system_prompt, user_prompt])
-        return response.text
-    
+        return GeneratorResponse(response=response.text, metadata=ResponseMetadata(model="Gemini"))

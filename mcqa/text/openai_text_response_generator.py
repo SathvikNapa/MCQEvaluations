@@ -1,7 +1,8 @@
-from models.domain.text_response_generator import TextResponseGenerator
-from models.text.config.openai_text_config import OpenAITextConfig
-
 from openai import OpenAI
+
+from mcqa.domain.response_generator import GeneratorResponse, ResponseMetadata
+from mcqa.domain.text_response_generator import TextResponseGenerator
+from mcqa.text.config.openai_text_config import OpenAITextConfig
 
 
 class OpenAITextResponseGenerator(TextResponseGenerator):
@@ -21,10 +22,7 @@ class OpenAITextResponseGenerator(TextResponseGenerator):
 
         Configures the OpenAI model with the OpenAI API key and temperature from openai_config.
         """
-        model_kwargs = {
-            "temperature": self.openai_config.temperature
-        }
-        self.llm_model = OpenAI(api_key=self.openai_config.openai_api_key, model_kwargs=model_kwargs)
+        self.llm_model = OpenAI(api_key=self.openai_config.openai_api_key)
 
     def generate_response(self, system_prompt, user_prompt):
         """Generates a response text.
@@ -42,4 +40,5 @@ class OpenAITextResponseGenerator(TextResponseGenerator):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ])
-        return response.choices[0].message.content
+        return GeneratorResponse(response=response.choices[0].message.content,
+                                 metadata=ResponseMetadata(model="OpenAI"))
