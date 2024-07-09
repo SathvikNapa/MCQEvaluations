@@ -19,6 +19,8 @@ This repository aims to evaluate the LLM responses for MCQs for Cancer related q
 
 3. Set environment variables
 
+Refer to the `.env.example` file and create a `.env` file with the required environment variables
+
 ```commandline
     set -a
     source .env
