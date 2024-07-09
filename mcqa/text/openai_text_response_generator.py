@@ -38,5 +38,6 @@ class OpenAITextResponseGenerator(TextResponseGenerator):
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
-            ])
+            ],
+        )
         return response.choices[0].message.content

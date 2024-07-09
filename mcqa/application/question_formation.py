@@ -17,7 +17,7 @@ class QuestionFormation(QuestionFormationInterface):
             options=self.request.options,
             context=self.request.context,
             answer=self.request.answer,
-            question_format=self.request.question_format
+            question_format=self.request.question_format,
         )
 
     def use_raw_question(self, question: str):

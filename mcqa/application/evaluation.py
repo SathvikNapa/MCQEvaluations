@@ -15,7 +15,7 @@ class QAEvaluation(Evaluation):
         Returns:
             str: The cleaned text.
         """
-        return re.sub(r"\s+", " ", re.sub(r'[^\x20-\x7E]', '', text)).strip().lower()
+        return re.sub(r"\s+", " ", re.sub(r"[^\x20-\x7E]", "", text)).strip().lower()
 
     def evaluate(self, generated_answer: str, actual_answer: str) -> float:
         """Evaluates the generated answer against the actual answer.

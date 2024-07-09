@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
-@dataclass    
+
+@dataclass
 class TextResponseGenerator:
     """A class used to generate text responses."""
 
@@ -11,9 +12,9 @@ class TextResponseGenerator:
 
         Raises:
             NotImplementedError: If the function is not implemented in a subclass.
-        """        
+        """
         raise NotImplementedError("create_llm_client is not implemented")
-    
+
     def generate_text_response(self):
         """Generates a text response.
 

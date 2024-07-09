@@ -25,6 +25,7 @@ class Context(BaseModel):
 
 class ResponseGeneratorRequest(BaseModel):
     """A class used to define the structure of a generator request."""
+
     query: str
     options: str
     answer: str
@@ -34,6 +35,7 @@ class ResponseGeneratorRequest(BaseModel):
 
 class ResponseGeneratorResponse(BaseModel):
     """A class used to define the structure of a generator response."""
+
     generated_answer: str
     actual_answer: str
     evaluation: float

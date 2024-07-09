@@ -48,7 +48,9 @@ class PostProcessor(PostProcessorInterface):
         """
         return pattern.findall(text)
 
-    def postprocess(self, generated_response: str, actual_answer: str) -> ResponseGeneratorResponse:
+    def postprocess(
+        self, generated_response: str, actual_answer: str
+    ) -> ResponseGeneratorResponse:
         """Post-processes the response to extract relevant fields and evaluate the answer.
 
         Args:
@@ -59,9 +61,15 @@ class PostProcessor(PostProcessorInterface):
             ResponseGeneratorResponse: The post-processed response containing extracted fields.
         """
         logger.debug("Response: %s", generated_response)
-        generated_answer = self._extract_regex(Patterns.answer, generated_response, "Answer")
-        excerpts = self._extract_regex(Patterns.excerpts, generated_response, "RelevantExcerpts")
-        thinking = self._extract_regex(Patterns.thinking, generated_response, "Thinking")
+        generated_answer = self._extract_regex(
+            Patterns.answer, generated_response, "Answer"
+        )
+        excerpts = self._extract_regex(
+            Patterns.excerpts, generated_response, "RelevantExcerpts"
+        )
+        thinking = self._extract_regex(
+            Patterns.thinking, generated_response, "Thinking"
+        )
         foundational_knowledge = self._extract_regex(
             Patterns.foundational_knowledge, generated_response, "FoundationalKnowledge"
         )
@@ -76,7 +84,7 @@ class PostProcessor(PostProcessorInterface):
             excerpts=excerpts,
             thinking=thinking,
             foundational_knowledge=foundational_knowledge,
-            metadata=ResponseMetadata(model=self.model)
+            metadata=ResponseMetadata(model=self.model),
         )
 
     def postprocess_rephrase(self, generated_response: str) -> list:
@@ -89,9 +97,15 @@ class PostProcessor(PostProcessorInterface):
             list: A list of tuples containing questions, options, and answers.
         """
         logger.debug("Response: %s", generated_response)
-        generated_questions = self._find_regex(Patterns.question_pattern, generated_response)
-        generated_options = self._find_regex(Patterns.options_pattern, generated_response)
-        generated_answers = self._find_regex(Patterns.answer_pattern, generated_response)
+        generated_questions = self._find_regex(
+            Patterns.question_pattern, generated_response
+        )
+        generated_options = self._find_regex(
+            Patterns.options_pattern, generated_response
+        )
+        generated_answers = self._find_regex(
+            Patterns.answer_pattern, generated_response
+        )
 
         return list(zip(generated_questions, generated_options, generated_answers))
 
@@ -105,8 +119,14 @@ class PostProcessor(PostProcessorInterface):
             list: A list of tuples containing questions, options, and answers.
         """
         logger.debug("Response: %s", generated_response)
-        generated_questions = self._find_regex(Patterns.question_pattern, generated_response)
-        generated_options = self._find_regex(Patterns.options_pattern, generated_response)
-        generated_answers = self._find_regex(Patterns.answer_pattern, generated_response)
+        generated_questions = self._find_regex(
+            Patterns.question_pattern, generated_response
+        )
+        generated_options = self._find_regex(
+            Patterns.options_pattern, generated_response
+        )
+        generated_answers = self._find_regex(
+            Patterns.answer_pattern, generated_response
+        )
 
         return list(zip(generated_questions, generated_options, generated_answers))

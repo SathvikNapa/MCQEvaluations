@@ -13,7 +13,7 @@ from mcqa.application.prompts import (
     REPHRASE_SYSTEM_PROMPT,
     SYNTHETIC_USER_PROMPT,
     NumberOfQuestionsTemplate,
-    SYNTHETIC_SYSTEM_PROMPT
+    SYNTHETIC_SYSTEM_PROMPT,
 )
 from mcqa.domain.response_generator import Context
 
@@ -21,7 +21,14 @@ from mcqa.domain.response_generator import Context
 class PromptCrafter:
     """Class responsible for crafting prompts based on the given context, query, and options."""
 
-    def __init__(self, query: str, options: str, context: Context, answer: str, question_format: str):
+    def __init__(
+        self,
+        query: str,
+        options: str,
+        context: Context,
+        answer: str,
+        question_format: str,
+    ):
         """Initializes the PromptCrafter instance with query, options, context, answer, and question format.
 
         Args:
@@ -50,14 +57,12 @@ class PromptCrafter:
             return self.craft_multimodal_prompt(
                 context_url=self.context.link_or_text,
                 query=self.query,
-                options=self.options
+                options=self.options,
             )
         if self.context.context_type in ["pdf", "text"]:
             if self.question_format == "rephrase":
                 return self.craft_rephrase_prompt(
-                    query=self.query,
-                    options=self.options,
-                    answer=self.answer
+                    query=self.query, options=self.options, answer=self.answer
                 )
             if self.question_format == "synthetic":
                 return self.craft_synthetic_prompt(
@@ -65,12 +70,12 @@ class PromptCrafter:
                     query=self.query,
                     options=self.options,
                     answer=self.answer,
-                    context=self.context.link_or_text
+                    context=self.context.link_or_text,
                 )
             return self.craft_text_prompt(
                 link_or_text=self.context.link_or_text,
                 query=self.query,
-                options=self.options
+                options=self.options,
             )
 
     def craft_text_prompt(self, link_or_text: str, query: str, options: str):
@@ -93,7 +98,9 @@ class PromptCrafter:
         question = QuestionTemplate.format(question_text=query)
         option = OptionsTemplate.format(option_text=options)
 
-        user_prompt = TEXT_USER_PROMPT.format(question=question, option=option, context=context)
+        user_prompt = TEXT_USER_PROMPT.format(
+            question=question, option=option, context=context
+        )
         return user_prompt, SYSTEM_PROMPT
 
     def craft_multimodal_prompt(self, context_url: str, query: str, options: str):
@@ -128,10 +135,14 @@ class PromptCrafter:
         question = QuestionTemplate.format(question_text=query)
         option = OptionsTemplate.format(option_text=options)
         answer = AnswerTemplate.format(answer=answer)
-        user_prompt = REPHRASE_USER_PROMPT.format(question=question, option=option, answer=answer)
+        user_prompt = REPHRASE_USER_PROMPT.format(
+            question=question, option=option, answer=answer
+        )
         return user_prompt, REPHRASE_SYSTEM_PROMPT
 
-    def craft_synthetic_prompt(self, n_questions: int, query: str, options: str, answer: str, context: str):
+    def craft_synthetic_prompt(
+        self, n_questions: int, query: str, options: str, answer: str, context: str
+    ):
         """Crafts a synthetic prompt for generating multiple questions.
 
         Args:
@@ -154,6 +165,6 @@ class PromptCrafter:
             query=question,
             option=option,
             answer=answer,
-            context=context
+            context=context,
         )
         return user_prompt, SYNTHETIC_SYSTEM_PROMPT

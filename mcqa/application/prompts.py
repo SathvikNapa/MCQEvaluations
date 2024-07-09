@@ -214,7 +214,9 @@ QuestionTemplate = """\n<Question>{question_text}</Question>\n"""
 OptionsTemplate = """\n<Option>{option_text}</Option>\n"""
 ContextTemplate = """\n<Context>{relevant_context}</Context>\n"""
 AnswerTemplate = """\n<Answer>{answer}</Answer>\n"""
-NumberOfQuestionsTemplate = """\n<NumberOfQuestions>{n_questions}</NumberOfQuestions>\n"""
+NumberOfQuestionsTemplate = (
+    """\n<NumberOfQuestions>{n_questions}</NumberOfQuestions>\n"""
+)
 
 REPHRASE_USER_PROMPT = """<Case>{question}{option}{answer}</Case>"""
 SYNTHETIC_USER_PROMPT = """<Case>{n_questions}{query}{option}{answer}{context}</Case>"""

@@ -18,9 +18,11 @@ class QuestionFormationInterface(Protocol):
         Raises:
             NotImplementedError: If the method is not implemented.
         """
-        raise NotImplementedError('use_raw_question() is not implemented')
+        raise NotImplementedError("use_raw_question() is not implemented")
 
-    def create_synthetic_questions(self, question: str, answer: str, context: str) -> Tuple[Any, Any]:
+    def create_synthetic_questions(
+        self, question: str, answer: str, context: str
+    ) -> Tuple[Any, Any]:
         """Creates synthetic questions based on a given question.
 
         Args:
@@ -30,9 +32,11 @@ class QuestionFormationInterface(Protocol):
         Raises:
             NotImplementedError: If the method is not implemented.
         """
-        raise NotImplementedError('create_synthetic_questions() is not implemented')
+        raise NotImplementedError("create_synthetic_questions() is not implemented")
 
-    def rephrase_question(self, question: str, options: str, answer: str) -> Tuple[Any, Any]:
+    def rephrase_question(
+        self, question: str, options: str, answer: str
+    ) -> Tuple[Any, Any]:
         """Rephrases a given question.
 
         Args:
@@ -41,4 +45,4 @@ class QuestionFormationInterface(Protocol):
         Raises:
             NotImplementedError: If the method is not implemented.
         """
-        raise NotImplementedError('rephrase_question() is not implemented')
+        raise NotImplementedError("rephrase_question() is not implemented")
