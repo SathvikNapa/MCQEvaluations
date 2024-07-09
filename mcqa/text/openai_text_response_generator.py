@@ -1,6 +1,5 @@
 from openai import OpenAI
 
-from mcqa.domain.response_generator import GeneratorResponse, ResponseMetadata
 from mcqa.domain.text_response_generator import TextResponseGenerator
 from mcqa.text.config.openai_text_config import OpenAITextConfig
 
@@ -40,5 +39,4 @@ class OpenAITextResponseGenerator(TextResponseGenerator):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ])
-        return GeneratorResponse(response=response.choices[0].message.content,
-                                 metadata=ResponseMetadata(model="OpenAI"))
+        return response.choices[0].message.content

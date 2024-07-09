@@ -20,19 +20,39 @@ class Context(BaseModel):
     """A class used to store context."""
 
     context_type: str
-    context_url: Optional[str] = None
+    link_or_text: Optional[str] = None
 
 
-class GeneratorRequest(BaseModel):
+class ResponseGeneratorRequest(BaseModel):
     """A class used to define the structure of a generator request."""
-
     query: str
     options: str
+    answer: str
+    question_format: str  # rephrase, raw, synthetic
     context: Context
 
 
-class GeneratorResponse(BaseModel):
+class ResponseGeneratorResponse(BaseModel):
     """A class used to define the structure of a generator response."""
-
-    response: str
+    generated_answer: str
+    actual_answer: str
+    evaluation: float
+    excerpts: str
+    thinking: str
+    foundational_knowledge: str
     metadata: ResponseMetadata
+
+
+class ResponsesGeneratorRequest(BaseModel):
+    """A class used to define the structure of responses generator request."""
+
+    file_type: str
+    file_path: str
+    metadata: RequestMetadata
+
+
+class ResponsesGeneratorResponse(BaseModel):
+    """A class used to define the structure of responses generator response."""
+
+    evaluation: float
+    list_of_responses: list[ResponseGeneratorResponse]

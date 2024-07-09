@@ -39,13 +39,48 @@ This repository aims to evaluate the LLM responses for MCQs for Cancer related q
 4. Send a query with the `query_text` field
 5. Example Query if the pdf is within data/Dataset_Eval/PubMed_Pdfs folder
 
+Synthetic Response Payload
+
 ```json
-    {
+{
   "query": "Which radionuclide was first used to noninvasively assess left ventricular ejection fraction and regional wall motion?",
   "options": "A. 99mTc-sestamibi B. Thallium-201 (201Tl) C. Potassium-43 (43K) D. 99mTc-labeled human serum albumin E. Rubidium-82 (82Rb) F. 13N-ammonia G. 18F-FDG H. 15O-water",
+  "answer": "D. 99mTc-labeled human serum albumin",
+  "question_format": "synthetic",
   "context": {
     "context_type": "pdf",
-    "context_url": "data/Dataset_Eval/PubMed_Pdfs/1.pdf"
+    "link_or_text": "data/Dataset_Eval/PubMed_Pdfs/1.pdf"
   }
 }
 ```
+
+Rephrase Response Payload
+
+```json
+{
+  "query": "Which radionuclide was first used to noninvasively assess left ventricular ejection fraction and regional wall motion?",
+  "options": "A. 99mTc-sestamibi B. Thallium-201 (201Tl) C. Potassium-43 (43K) D. 99mTc-labeled human serum albumin E. Rubidium-82 (82Rb) F. 13N-ammonia G. 18F-FDG H. 15O-water",
+  "answer": "D. 99mTc-labeled human serum albumin",
+  "question_format": "rephrase",
+  "context": {
+    "context_type": "pdf",
+    "link_or_text": "data/Dataset_Eval/PubMed_Pdfs/1.pdf"
+  }
+}
+```
+
+Raw Response Payload
+
+```json
+{
+  "query": "Which radionuclide was first used to noninvasively assess left ventricular ejection fraction and regional wall motion?",
+  "options": "A. 99mTc-sestamibi B. Thallium-201 (201Tl) C. Potassium-43 (43K) D. 99mTc-labeled human serum albumin E. Rubidium-82 (82Rb) F. 13N-ammonia G. 18F-FDG H. 15O-water",
+  "answer": "D. 99mTc-labeled human serum albumin",
+  "question_format": "raw",
+  "context": {
+    "context_type": "pdf",
+    "link_or_text": "data/Dataset_Eval/PubMed_Pdfs/1.pdf"
+  }
+}
+```
+
