@@ -14,7 +14,7 @@ This repository aims to evaluate the LLM responses for MCQs for Cancer related q
 2. Install the dependencies
 
 ```commandline
-    pip install -r requirements.txt
+    make setup
 ```
 
 3. Set environment variables
@@ -27,7 +27,11 @@ Refer to the `.env.example` file and create a `.env` file with the required envi
     set +a
 ```
 
-# Run the service
+# Format the code and start the service
+
+```commandline
+    make format
+```
 
 ```commandline
     make start

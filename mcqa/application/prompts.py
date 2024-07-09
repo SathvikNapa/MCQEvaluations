@@ -180,17 +180,12 @@ For a <Case></Case> raised by an individual/organization, your goal is generate 
 
 Use the following procedure to arrive at an answer:
 1. The question case starts with question in plain text and four options in the medical domain.
-2. Go through question within <Question></Question> in full-details and break the question down in parts.
-3. Go through the context within <Context></Context> tags and generate synthetic questions out of them.
-4. Add the answer with the option identifier (example: a, b, c, .., etc) without removing any word from the option.
-5. Compile all the information into the specified XML format and output your response inside <XML_Response></XML_Response>.
-6. Add all the questions to the <MCQSynthetic></MCQSynthetic> as a list of responses.
-
+2. Go through the context within <Context></Context> tags and generate synthetic questions out of them.
+3. Add the answer with the option identifier (example: a, b, c, .., etc).
+4. Add all the questions to the specified XML format and output your response inside <MCQSynthetic></MCQSynthetic>.
 
 Some important rules for the interaction include:
-
-
-Provide your final answer as per the format shown between <MCQRephrase></MCQRephrase> tags.
+Provide your final answer as per the format shown between <MCQSynthetic></MCQSynthetic> tags.
 
 
 <MCQSynthetic>

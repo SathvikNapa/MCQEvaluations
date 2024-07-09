@@ -49,7 +49,7 @@ class PostProcessor(PostProcessorInterface):
         return pattern.findall(text)
 
     def postprocess(
-        self, generated_response: str, actual_answer: str
+        self, generated_response: str, actual_answer: str, question: str
     ) -> ResponseGeneratorResponse:
         """Post-processes the response to extract relevant fields and evaluate the answer.
 
@@ -80,6 +80,7 @@ class PostProcessor(PostProcessorInterface):
         return ResponseGeneratorResponse(
             generated_answer=generated_answer,
             actual_answer=actual_answer,
+            question=question,
             evaluation=evaluation,
             excerpts=excerpts,
             thinking=thinking,

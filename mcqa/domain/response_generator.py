@@ -38,6 +38,7 @@ class ResponseGeneratorResponse(BaseModel):
 
     generated_answer: str
     actual_answer: str
+    question: str
     evaluation: float
     excerpts: str
     thinking: str
@@ -50,7 +51,7 @@ class ResponsesGeneratorRequest(BaseModel):
 
     file_type: str
     file_path: str
-    metadata: RequestMetadata
+    question_format: str  # rephrase, raw, synthetic
 
 
 class ResponsesGeneratorResponse(BaseModel):
