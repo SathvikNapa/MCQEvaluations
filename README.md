@@ -3,7 +3,7 @@
 This repository aims to evaluate the LLM responses for MCQs for Cancer related questions
 
 ## Setup
-
+[![Poetry](https://img.shields.io/endpoint?url=https://python-poetry.org/badge/v0.json)](https://python-poetry.org/)
 1. Create a new virtual_env and activate
 
 ```commandline
