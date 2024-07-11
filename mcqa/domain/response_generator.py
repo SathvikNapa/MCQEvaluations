@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional
 
 from pydantic import BaseModel
@@ -59,3 +61,16 @@ class ResponsesGeneratorResponse(BaseModel):
 
     evaluation: float
     list_of_responses: list[ResponseGeneratorResponse]
+
+
+class RequestResponseLogs(BaseModel):
+    """A class used to define the structure of a request response log."""
+
+    request: ResponseGeneratorRequest
+    response: ResponsesGeneratorResponse
+
+# class RequestResponseLog(BaseModel):
+#     """A class used to define the structure of a request response log."""
+#
+#     request: ResponseGeneratorRequest
+#     response: ResponseGeneratorResponse

@@ -162,4 +162,5 @@ cython_debug/
 #.idea/
 # Ignore data directory and .idea files
 /data/
+/json_logs/
 .idea/

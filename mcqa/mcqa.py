@@ -124,7 +124,7 @@ class Mcqa(McqaInterface):
             return rephrased_questions
 
     def generate_response_from_files(
-        self, file_path: str, file_type: str, question_format: str
+            self, file_path: str, file_type: str, question_format: str
     ):
         """Generates responses for queries from a file.
 
@@ -140,9 +140,9 @@ class Mcqa(McqaInterface):
             extracted_requests = CsvParser().handle_csv(file_path=file_path)
 
             final_responses = []
-            for query, option, answer, context in tqdm.tqdm(extracted_requests[:2]):
+            for _n, (query, option, answer, context) in tqdm.tqdm(enumerate(extracted_requests)):
                 try:
-                    response = Mcqa(
+                    request_obj = Mcqa(
                         request=ResponseGeneratorRequest(
                             query=query,
                             options=option,
@@ -150,7 +150,8 @@ class Mcqa(McqaInterface):
                             question_format=question_format,
                             context=context,
                         )
-                    ).generate_query_response()
+                    )
+                    response = request_obj.generate_query_response()
 
                     final_responses.append(response)
 
@@ -168,12 +169,12 @@ class Mcqa(McqaInterface):
             evaluation = sum(
                 response_.evaluation for response_ in final_responses
             ) / len(final_responses)
-            logger.debug(
-                "ResponsesGeneratorResponse: %s",
-                ResponsesGeneratorResponse(
-                    list_of_responses=final_responses, evaluation=evaluation
-                ),
-            )
-            return ResponsesGeneratorResponse(
+
+            serialized_response = ResponsesGeneratorResponse(
                 list_of_responses=final_responses, evaluation=evaluation
             )
+
+            logger.debug(
+                "ResponsesGeneratorResponse: %s", serialized_response
+            )
+            return serialized_response

@@ -19,8 +19,12 @@ class CsvParser(InputParser):
                 question = row["Question"]
                 option = row["All Answers"]
                 answer = row["Correct Answer"]
-                source_type = row["source_type"]
-                source_path = row["source_path"]
+                if row["source_type"] == "text":
+                    source_type = "text"
+                    source_path = row["Short_Context?"]
+                else:
+                    source_type = row["source_type"]
+                    source_path = row["source_path"]
 
                 requests.append(
                     [
@@ -30,9 +34,5 @@ class CsvParser(InputParser):
                         Context(context_type=source_type, link_or_text=source_path),
                     ]
                 )
-
-                # requests.append(
-                #     ResponseGeneratorRequest(query=question, options=option, answer=answer, question_format='raw',
-                #                              context=Context(context_type=source_type, link_or_text=source_path)))
 
         return requests
