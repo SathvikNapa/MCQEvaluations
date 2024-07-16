@@ -43,9 +43,7 @@ Refer to the `.env.example` file and create a `.env` file with the required envi
 
 1. Start the server `make start`
 2. Navigate to [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-3. Click on the `Try it out` under `/generate_response` endpoint
-4. Send a query with the `query_text` field
-5. Example Query if the pdf is within data/Dataset_Eval/PubMed_Pdfs folder
+3. Click on the `Try it out` under`/evaluate_query` endpoint
 
 Synthetic Response Payload
 
