@@ -1,4 +1,4 @@
-# Cancer MCQ Answers LLM Evaluations
+# LLM Evaluations for Cancer MCQs
 
 This repository aims to evaluate the LLM responses for MCQs for Cancer related questions
 
