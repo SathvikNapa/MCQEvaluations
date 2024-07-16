@@ -1,3 +1,6 @@
+import base64
+from io import BytesIO
+
 import PyPDF2
 
 from mcqa.domain.input_parser import InputParser
@@ -10,7 +13,7 @@ class PdfParser(InputParser):
 
     """
 
-    def handle_pdf(self, file_path: str) -> str:
+    def parse(self, file_path: str) -> str:
         """Parses a PDF file and extracts the text.
 
         Args:
@@ -31,3 +34,7 @@ class PdfParser(InputParser):
         texts.append(pdf_text)
 
         return " ".join(texts[0])
+
+    def _handle_pdf(self, file_path: str):
+        bytes_ = BytesIO(file_path).getvalue()
+        return base64.b64encode(bytes_).decode("utf-8")

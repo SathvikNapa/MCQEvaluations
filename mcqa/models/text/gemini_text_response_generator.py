@@ -1,7 +1,7 @@
 import google.generativeai as genai
 
 from mcqa.domain.text_response_generator import TextResponseGenerator
-from mcqa.text.config.gemini_text_config import GeminiTextConfig
+from mcqa.models.text.config.gemini_text_config import GeminiTextConfig
 
 
 class GeminiTextResponseGenerator(TextResponseGenerator):

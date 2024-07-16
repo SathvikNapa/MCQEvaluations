@@ -1,3 +1,5 @@
+from typing import Any
+
 from mcqa.application.input_parser.image_parser import ImageParser
 from mcqa.application.input_parser.pdf_parser import PdfParser
 from mcqa.application.prompts import (
@@ -13,7 +15,7 @@ from mcqa.application.prompts import (
     ContextTemplate,
     NumberOfQuestionsTemplate,
     OptionsTemplate,
-    QuestionTemplate,
+    QuestionTemplate, MULTIMODAL_SYNTHETIC_SYSTEM_PROMPT, MULTIMODAL_SYNTHETIC_USER_PROMPT,
 )
 from mcqa.domain.response_generator import Context
 
@@ -27,38 +29,64 @@ class PromptCrafter:
         self.pdf_parser = PdfParser()
 
     def craft_prompt(
-        self,
-        query: str,
-        options: str,
-        context: Context,
-        answer: str,
-        question_format: str,
+            self,
+            query: str,
+            options: str,
+            context: Context,
+            answer: str,
+            question_format: str,
     ):
         """Crafts the appropriate prompt based on the context type and question format."""
-        if context.context_type == "image":
+        if context.context_type in ["image"]:
+            if question_format == "rephrase":
+                return self._craft_rephrase_prompt(query, options, answer, context)
+            if question_format == "synthetic":
+                return self._craft_synthetic_prompt(n_questions=5, query=query, options=options, answer=answer,
+                                                    context=context)
             return self._craft_multimodal_prompt(context.link_or_text, query, options)
+
         elif context.context_type in ["pdf", "text"]:
             if question_format == "rephrase":
-                return self._craft_rephrase_prompt(query, options, answer)
-            elif question_format == "synthetic":
+                return self._craft_rephrase_prompt(query, options, answer, context)
+            if question_format == "synthetic":
                 return self._craft_synthetic_prompt(
-                    5, query, options, answer, context.link_or_text
+                    5, query, options, answer, context
                 )
             return self._craft_text_based_prompt(
-                context.link_or_text, query, options, context.context_type
+                context, query, options
             )
 
+    def _craft_rephrase_prompt(self, query: str, options: str, answer: str, context: Context):
+        """Crafts a rephrasing prompt."""
+        if context.context_type in ["image"]:
+            parsed_multimodal_object = self.image_parser.parse(file_path=context.link_or_text)
+            question = QuestionTemplate.format(question_text=query)
+            option = OptionsTemplate.format(option_text=options)
+            answer = AnswerTemplate.format(answer=answer)
+            user_prompt = REPHRASE_USER_PROMPT.format(
+                question=question, option=option, answer=answer
+            )
+            return user_prompt, REPHRASE_SYSTEM_PROMPT, parsed_multimodal_object
+
+        question = QuestionTemplate.format(question_text=query)
+        option = OptionsTemplate.format(option_text=options)
+        answer = AnswerTemplate.format(answer=answer)
+        user_prompt = REPHRASE_USER_PROMPT.format(
+            question=question, option=option, answer=answer
+        )
+        return user_prompt, REPHRASE_SYSTEM_PROMPT
+
     def _craft_text_based_prompt(
-        self, link_or_text: str, query: str, options: str, context_type: str
+            self, context: Context, query: str, options: str
     ):
         """Crafts a text-based prompt for PDF or text context."""
-        if context_type == "pdf":
-            context_text = self.pdf_parser.handle_pdf(file_path=link_or_text)
+        if context.context_type == "pdf":
+            context_text = self.pdf_parser.parse(context.link_or_text)
         else:
-            context_text = link_or_text
+            context_text = context.link_or_text
 
-        context = ContextTemplate.format(relevant_context=context_text)
         question = QuestionTemplate.format(question_text=query)
+        context = ContextTemplate.format(relevant_context=context_text)
         option = OptionsTemplate.format(option_text=options)
 
         user_prompt = TEXT_USER_PROMPT.format(
@@ -74,30 +102,42 @@ class PromptCrafter:
         user_prompt = MULTIMODAL_USER_PROMPT.format(question=question, option=option)
         return user_prompt, MULTIMODAL_SYSTEM_PROMPT, parsed_multimodal_object
 
-    def _craft_rephrase_prompt(self, query: str, options: str, answer: str):
-        """Crafts a rephrasing prompt."""
-        question = QuestionTemplate.format(question_text=query)
-        option = OptionsTemplate.format(option_text=options)
-        answer = AnswerTemplate.format(answer=answer)
-        user_prompt = REPHRASE_USER_PROMPT.format(
-            question=question, option=option, answer=answer
-        )
-        return user_prompt, REPHRASE_SYSTEM_PROMPT
-
     def _craft_synthetic_prompt(
-        self, n_questions: int, query: str, options: str, answer: str, context: str
+            self, n_questions: int, query: str, options: str, answer: str, context: Any
     ):
-        """Crafts a synthetic prompt for generating multiple questions."""
-        question = QuestionTemplate.format(question_text=query)
-        option = OptionsTemplate.format(option_text=options)
-        answer = AnswerTemplate.format(answer=answer)
-        context = ContextTemplate.format(relevant_context=context)
-        n_questions = NumberOfQuestionsTemplate.format(n_questions=n_questions)
-        user_prompt = SYNTHETIC_USER_PROMPT.format(
-            n_questions=n_questions,
-            query=question,
-            option=option,
-            answer=answer,
-            context=context,
-        )
-        return user_prompt, SYNTHETIC_SYSTEM_PROMPT
+        if context.context_type in ["text", "pdf"]:
+
+            if context.context_type == "pdf":
+                context_text = self.pdf_parser.parse(context.link_or_text)
+            else:
+                context_text = context.link_or_text
+
+            """Crafts a synthetic prompt for generating multiple questions."""
+            question = QuestionTemplate.format(question_text=query)
+            option = OptionsTemplate.format(option_text=options)
+            answer = AnswerTemplate.format(answer=answer)
+            context = ContextTemplate.format(relevant_context=context_text)
+            n_questions = NumberOfQuestionsTemplate.format(n_questions=n_questions)
+            user_prompt = SYNTHETIC_USER_PROMPT.format(
+                n_questions=n_questions,
+                query=question,
+                option=option,
+                answer=answer,
+                context=context,
+            )
+            return user_prompt, SYNTHETIC_SYSTEM_PROMPT
+
+        if context.context_type in ["image"]:
+            """Crafts a synthetic prompt for generating multiple questions."""
+            parsed_multimodal_object = self.image_parser.parse(file_path=context.link_or_text)
+            question = QuestionTemplate.format(question_text=query)
+            option = OptionsTemplate.format(option_text=options)
+            answer = AnswerTemplate.format(answer=answer)
+            n_questions = NumberOfQuestionsTemplate.format(n_questions=n_questions)
+            user_prompt = MULTIMODAL_SYNTHETIC_USER_PROMPT.format(
+                n_questions=n_questions,
+                query=question,
+                option=option,
+                answer=answer,
+            )
+            return user_prompt, MULTIMODAL_SYNTHETIC_SYSTEM_PROMPT, parsed_multimodal_object

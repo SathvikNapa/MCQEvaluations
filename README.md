@@ -3,7 +3,9 @@
 This repository aims to evaluate the LLM responses for MCQs for Cancer related questions
 
 ## Setup
+
 [![Poetry](https://img.shields.io/endpoint?url=https://python-poetry.org/badge/v0.json)](https://python-poetry.org/)
+
 1. Create a new virtual_env and activate
 
 ```commandline
@@ -90,3 +92,11 @@ Raw Response Payload
 }
 ```
 
+## Improvements
+
+- [x] Incorporate Multimodal response generation (Except PDF)
+- [X] Parse the options as arrays.
+- [ ] Prompt changes as discussed
+- [ ] Incorporate LiteLLM framework
+- [ ] Use TogetherAI for OpenLLM calls
+- [ ] Simplify the codebase

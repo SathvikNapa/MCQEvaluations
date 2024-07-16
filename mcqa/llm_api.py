@@ -1,5 +1,3 @@
-import logging
-
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -13,8 +11,6 @@ from mcqa.domain.response_generator import (
 from mcqa.mcqa import Mcqa
 
 app = FastAPI()
-logger = logging.getLogger("uvicorn.error")
-logger.setLevel(logging.DEBUG)
 
 origins = ["*"]
 

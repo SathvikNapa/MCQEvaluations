@@ -14,6 +14,7 @@ from mcqa.domain.mcqa import McqaInterface
 from mcqa.domain.response_generator import (
     ResponseGeneratorRequest,
     ResponsesGeneratorResponse,
+    RequestResponseLogs, RequestResponseLog,
 )
 from mcqa.llm_router import LLMRouter
 
@@ -32,62 +33,27 @@ class Mcqa(McqaInterface):
         self.question_formulator = QuestionFormation()
         self.prompt_crafter = PromptCrafter()
 
-        if self.request.context.context_type in ["text", "pdf"]:
-            self.llm_router = LLMRouter(text_model=self.mcqa_config.text_model)
-        if self.request.context.context_type in ["image"]:
-            self.llm_router = LLMRouter(multimodal_model=self.mcqa_config.multimodal_model)
-
     def generate_query_response(self):
         """Generates a response for the given query based on the context type."""
-        question_format = self.request.question_format
+        if self.request.context.context_type in ["pdf", "text"]:
+            llm_router = LLMRouter(text_model=self.mcqa_config.text_model)
+            question_format = self.request.question_format
 
-        if question_format == "raw":
-            return self._generate_raw_response(self.llm_router)
-        elif question_format in ["synthetic", "rephrase"]:
-            return self.generate_modified_query_response()
+            if question_format == "raw":
+                return self._generate_raw_response(llm_router)
+            elif question_format in ["synthetic", "rephrase"]:
+                return self.generate_modified_query_response()
 
     def generate_modified_query_response(self):
         """Generates a modified query response based on the context type."""
-        if self.request.context.context_type in ["text"]:
+        if self.request.context.context_type in ["pdf", "text"]:
             llm_router = LLMRouter(text_model=self.mcqa_config.text_model)
             question_format = self.request.question_format
-            prompt_object, options_text, answer = self._get_prompts(question_format)
+            user_prompt, system_prompt = self._get_prompts(question_format)
 
-            user_prompt, system_prompt = prompt_object
             llm_router.start_model()
             response = llm_router.generate_llm_response(
                 system_prompt=system_prompt, user_prompt=user_prompt
-            )
-            rephrased_questions = self._postprocess_response(response, question_format)
-
-            responses = [
-                Mcqa(
-                    request=ResponseGeneratorRequest(
-                        query=question,
-                        options=options,
-                        context=self.request.context,
-                        answer=answer,
-                        question_format="raw",
-                    )
-                ).generate_query_response()
-                for question, options, answer in tqdm.tqdm(rephrased_questions)
-            ]
-
-            evaluation = sum(response.evaluation for response in responses) / len(
-                responses
-            )
-            return ResponsesGeneratorResponse(
-                list_of_responses=responses, evaluation=evaluation
-            )
-
-        if self.request.context.context_type in ["image"]:
-            llm_router = LLMRouter(multimodal_model=self.mcqa_config.multimodal_model)
-            question_format = self.request.question_format
-            prompt_object, options_text, answer = self._get_prompts(question_format)
-            user_prompt, system_prompt, parsed_multimodal_object = prompt_object
-            llm_router.start_model()
-            response = llm_router.generate_llm_response(
-                system_prompt=system_prompt, user_prompt=user_prompt, multimodal_object=parsed_multimodal_object
             )
             rephrased_questions = self._postprocess_response(response, question_format)
 
@@ -113,39 +79,21 @@ class Mcqa(McqaInterface):
 
     def _generate_raw_response(self, llm_router):
         """Generates a raw response using the LLM router."""
-        if self.request.context.context_type in ["text", "pdf"]:
-            prompt_object, options_text, answer = self.question_formulator.use_raw_question(
-                query=self.request.query,
-                options=self.request.options,
-                context=self.request.context,
-                answer=self.request.answer,
-                question_format=self.request.question_format,
-            )
-            user_prompt, system_prompt = prompt_object
-            llm_router.start_model()
-            response = llm_router.generate_llm_response(
-                system_prompt=system_prompt, user_prompt=user_prompt
-            )
-
-        if self.request.context.context_type in ["image"]:
-            prompt_object, options_text, answer = self.question_formulator.use_raw_question(
-                query=self.request.query,
-                options=self.request.options,
-                context=self.request.context,
-                answer=self.request.answer,
-                question_format=self.request.question_format,
-            )
-            user_prompt, system_prompt, parsed_multimodal_object = prompt_object
-            llm_router.start_model()
-            response = llm_router.generate_llm_response(
-                system_prompt=system_prompt, user_prompt=user_prompt, multimodal_object=parsed_multimodal_object
-            )
-
+        user_prompt, system_prompt = self.question_formulator.use_raw_question(
+            query=self.request.query,
+            options=self.request.options,
+            context=self.request.context,
+            answer=self.request.answer,
+            question_format=self.request.question_format,
+        )
+        llm_router.start_model()
+        response = llm_router.generate_llm_response(
+            system_prompt=system_prompt, user_prompt=user_prompt
+        )
         return self.postprocessor.postprocess(
             generated_response=response,
-            actual_answer=answer,
+            actual_answer=self.request.answer,
             question=self.request.query,
-            options=options_text,
         )
 
     def _get_prompts(self, question_format):
@@ -204,9 +152,17 @@ class Mcqa(McqaInterface):
                             context=context,
                         )
                     )
+                    if _n < 202:
+                        continue
+                    time.sleep(5)
                     response = request_obj.generate_query_response()
 
                     final_responses.append(response)
+                    request_response_log_ = RequestResponseLog(
+                        request=request_obj.request, response=response
+                    )
+                    with open(f"json_logs/openai4o/request_response_log_4o_{_n}.json", "w") as f:
+                        f.write(request_response_log_.json())
 
                 except Exception as e:
                     logger.error(e)
@@ -226,8 +182,11 @@ class Mcqa(McqaInterface):
             serialized_response = ResponsesGeneratorResponse(
                 list_of_responses=final_responses, evaluation=evaluation
             )
-
-            logger.debug(
-                "ResponsesGeneratorResponse: %s", serialized_response
+            request_response_logs = RequestResponseLogs(
+                request=request_obj.request, response=serialized_response
             )
+
+            with open("json_logs/request_response_log_openai4o_total.json", "w") as f:
+                f.write(request_response_logs.json())
+
             return serialized_response

@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 from mcqa.domain.text_response_generator import TextResponseGenerator
-from mcqa.text.config.openai_text_config import OpenAITextConfig
+from mcqa.models.text.config.openai_text_config import OpenAITextConfig
 
 
 class OpenAITextResponseGenerator(TextResponseGenerator):

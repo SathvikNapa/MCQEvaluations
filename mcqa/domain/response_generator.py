@@ -41,6 +41,7 @@ class ResponseGeneratorResponse(BaseModel):
     generated_answer: str
     actual_answer: str
     question: str
+    options: str
     evaluation: float
     excerpts: str
     thinking: str
