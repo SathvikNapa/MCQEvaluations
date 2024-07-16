@@ -18,21 +18,22 @@ class ResponseMetadata(BaseModel):
     model: str
 
 
-class Context(BaseModel):
+class LongContext(BaseModel):
     """A class used to store context."""
 
-    context_type: str
+    file_type: str
     link_or_text: Optional[str] = None
 
 
-class ResponseGeneratorRequest(BaseModel):
+class Question(BaseModel):
     """A class used to define the structure of a generator request."""
 
     query: str
     options: str
     answer: str
     question_format: str  # rephrase, raw, synthetic
-    context: Context
+    long_context: LongContext
+    short_context: Optional[str] = None
 
 
 class ResponseGeneratorResponse(BaseModel):
@@ -67,7 +68,7 @@ class ResponsesGeneratorResponse(BaseModel):
 class RequestResponseLogs(BaseModel):
     """A class used to define the structure of a request response log."""
 
-    request: ResponseGeneratorRequest
+    request: Question
     response: ResponsesGeneratorResponse
 
 # class RequestResponseLog(BaseModel):

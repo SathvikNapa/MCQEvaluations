@@ -1,13 +1,12 @@
-import logging
 from typing import Any
 
+from mcqa import logger
 from mcqa.models.multimodal.gemini_multimodal_response_generator import GeminiMultimodalResponseGenerator
 from mcqa.models.multimodal.openai_multimodal_response_generator import OpenaiMultimodalResponseGenerator
 from mcqa.models.text.gemini_text_response_generator import GeminiTextResponseGenerator
 from mcqa.models.text.openai_text_response_generator import OpenAITextResponseGenerator
 
-logger = logging.getLogger("uvicorn.error")
-logger.setLevel(logging.DEBUG)
+logger = logger.setup_logger()
 
 
 class LLMRouter:

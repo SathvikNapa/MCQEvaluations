@@ -9,6 +9,9 @@ You will receive a question and a relevant context in the XML format. The XMl co
     <Options>
         [Ordered options in text]
     </Options>
+    <ShortContext>
+        [Short context in text]
+    </ShortContext>
     <Context>
         [Relevant long text context]
     </Context>
@@ -21,22 +24,20 @@ For a <Case></Case> raised by an individual/organization, your goal is to choose
 Use the following procedure to arrive at an answer:
 1. The question case starts with question in plain text and four options in the medical domain, followed by relevant long text context.
 2. Go through question within <Question></Question> in full-details and break the question down in parts.
-3. Look into the relevant pointers in the long context within <Context>. Context can be either text or images.
-4. Identify the appropriate answer from the list of choices within <Options> provided.
-5. Add the answer with the option identifier (example: A, B, C, .., etc) without removing any word from the option 
-6. Cite the relevant text from the context to the question within the <RelevantExcerpts></RelevantExcerpts>. 
-7. If the answer is from foundational knowledge and the context has no relevant quotes, Mark the Yes/No within <FoundationalKnowledge></FoundationalKnowledge>.
-8. Compile all the information into the specified XML format and output your response inside <XML_Response></XML_Response>.
-9. Stick to the context for all your responses.
+3. Analyze the long context within <Context></Context> and answer the multiple-choice question. Context can be either text or images.
+4. Base the context solely off the given context, not prior knowledge because prior knowledge may be wrong or contradict the context.
+5. Identify the appropriate answer and respond only with the letter representing the answer from the list of choices within <Options> provided, as if taking an exam.
+6. Do not provide explanations or commentary, only the answer. 
+7. Cite the relevant text from the context to the question within the <RelevantExcerpts></RelevantExcerpts>. 
+8. If the answer is from foundational knowledge and the context has no relevant quotes, Mark the Yes/No within <FoundationalKnowledge></FoundationalKnowledge>.
+9. Compile all the information into the specified XML format and output your response inside <XML_Response></XML_Response>.
 
 Some important rules for the interaction include:
 
 Provide your final answer as per the format shown between <MCQResponse></MCQResponse> tags.
 
 <MCQResponse>
-    <Answer>
-        [Option. Exact Answer in text]
-    </Answer>
+    <Answer>[Option]</Answer>
     <RelevantExcerpts>
         [Add the excerpts in bulleted list marked by `-`]
     </RelevantExcerpts>
@@ -57,6 +58,9 @@ You will receive a question and a relevant context in the XML format. The XMl co
     <Question>
         [Question in text]
     </Question>
+    <ShortContext>
+        [Short context in text]
+    </ShortContext>
     <Options>
         [Ordered options in text]
     </Options>
@@ -69,25 +73,20 @@ For a <Case></Case> raised by an individual/organization, your goal is to choose
 Use the following procedure to arrive at an answer:
 1. The question case starts with question in plain text and four options in the medical domain, followed by relevant long text context.
 2. Go through question within <Question></Question> in full-details and break the question down in parts.
-3. Look into the relevant pointers in the image used as context.
-4. Identify the appropriate answer from the list of choices within <Options> provided.
-5. Add the answer with the option identifier (example: a, b, c, .., etc) without removing any word from the option 
-6. Cite the relevant text from the context to the question within the <RelevantExcerpts></RelevantExcerpts>. 
+3. Analyze the long context within <Context></Context> and answer the multiple-choice question. Context can be either text or images.
+4. Base the context solely off the given context, noi prior knowledge because prior knowledge may be wrong or contradict the context.
+5. Identify the appropriate answer and respond only with the letter representing the answer from the list of choices within <Options> provided, as if taking an exam.
+6. Do not provide explanations or commentary, only the answer.
 7. If the answer is from foundational knowledge and the context has no relevant quotes, Mark the Yes/No within <FoundationalKnowledge></FoundationalKnowledge>.
 8. Compile all the information into the specified XML format and output your response inside <XML_Response></XML_Response>.
-9. Stick to the context for all your responses.
-
 
 Some important rules for the interaction include:
-
 
 Provide your final answer as per the format shown between <MCQResponse></MCQResponse> tags.
 
 
 <MCQResponse>
-    <Answer>
-        [Option. Exact Answer in text]
-    </Answer>
+    <Answer>[Option]</Answer>
     <RelevantExcerpts>
         [Add the excerpts in bulleted list marked by `-`]
     </RelevantExcerpts>
@@ -166,6 +165,9 @@ You will receive context as an image/pdf, question, list of options and actual a
     <Options>
         [Ordered options in text]
     </Options>
+    <ShortContext>
+        [Short context in text]
+    </ShortContext>
     <Answer>
         [Answer to the question]
     </Answer>
@@ -219,6 +221,9 @@ You will receive context, question, list of options and actual answer as input i
     <Answer>
         [Answer to the question]
     </Answer>
+    <ShortContext>
+        [Short context in text]
+    </ShortContext>
     <Context>
         [short/long context text]
     </Context>
@@ -263,9 +268,10 @@ AnswerTemplate = """\n<Answer>{answer}</Answer>\n"""
 NumberOfQuestionsTemplate = (
     """\n<NumberOfQuestions>{n_questions}</NumberOfQuestions>\n"""
 )
+ShortContextTemplate = """\n<ShortContext>{short_context}</ShortContext>\n"""
 
 REPHRASE_USER_PROMPT = """<Case>{question}{option}{answer}</Case>"""
-SYNTHETIC_USER_PROMPT = """<Case>{n_questions}{query}{option}{answer}{context}</Case>"""
-TEXT_USER_PROMPT = """<Case>{question}{option}{context}</Case>"""
-MULTIMODAL_USER_PROMPT = """<Case>{question}{option}</Case>"""
-MULTIMODAL_SYNTHETIC_USER_PROMPT = """<Case>{n_questions}{query}{option}{answer}</Case>"""
+SYNTHETIC_USER_PROMPT = """<Case>{n_questions}{query}{option}{answer}{context}{short_context}</Case>"""
+TEXT_USER_PROMPT = """<Case>{question}{option}{context}{short_context}</Case>"""
+MULTIMODAL_USER_PROMPT = """<Case>{question}{option}{short_context}</Case>"""
+MULTIMODAL_SYNTHETIC_USER_PROMPT = """<Case>{n_questions}{query}{option}{answer}{short_context}</Case>"""

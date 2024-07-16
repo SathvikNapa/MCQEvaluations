@@ -1,6 +1,9 @@
 import re
 
+from mcqa import logger
 from mcqa.domain.evaluation import Evaluation
+
+logger = logger.setup_logger()
 
 
 class QAEvaluation(Evaluation):
@@ -15,7 +18,7 @@ class QAEvaluation(Evaluation):
         Returns:
             str: The cleaned text.
         """
-        return re.sub(r"\s+", " ", re.sub(r"[^\x20-\x7E]", "", text)).strip().lower()
+        return re.sub(r"[^\x20-\x7E]", "", text).strip()
 
     def evaluate(self, generated_answer: str, actual_answer: str) -> float:
         """Evaluates the generated answer against the actual answer.
@@ -27,6 +30,19 @@ class QAEvaluation(Evaluation):
         Returns:
             float: The evaluation score, 100.0 if the answers match, otherwise 0.0.
         """
-        if self._clean_text(generated_answer) == self._clean_text(actual_answer):
+
+        logger.debug("Generated Answer: %s", generated_answer)
+        logger.debug("Actual Answer: %s", actual_answer)
+
+        if re.search(r"\s*[A-Z]", self._clean_text(actual_answer)):
+            treated_answer = re.findall(r"\s*[A-Z]", self._clean_text(actual_answer))[0].strip()
+        else:
+            treated_answer = self._clean_text(actual_answer)
+
+        treated_generated_answer = self._clean_text(generated_answer)
+        if re.search(r"\s*[A-Za-z].", treated_generated_answer):
+            treated_generated_answer = treated_generated_answer[0]
+
+        if treated_generated_answer.lower() == treated_answer.lower():
             return 100.0
         return 0.0

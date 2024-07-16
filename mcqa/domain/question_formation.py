@@ -1,6 +1,6 @@
 from typing import Any, Protocol, Tuple
 
-from mcqa.domain.response_generator import Context
+from mcqa.domain.response_generator import LongContext
 
 
 class QuestionFormationInterface(Protocol):
@@ -12,12 +12,13 @@ class QuestionFormationInterface(Protocol):
     """
 
     def use_raw_question(
-        self,
-        query: str,
-        options: str,
-        context: Context,
-        answer: str,
-        question_format: str,
+            self,
+            query: str,
+            options: str,
+            context: LongContext,
+            answer: str,
+            question_format: str,
+            short_context: str
     ) -> Tuple[Any, Any]:
         """Uses a raw question as is.
 
@@ -30,7 +31,7 @@ class QuestionFormationInterface(Protocol):
         raise NotImplementedError("use_raw_question() is not implemented")
 
     def create_synthetic_questions(
-        self, query: str, options: str, context: Context, answer: str
+            self, query: str, options: str, context: LongContext, answer: str, short_context: str
     ) -> Tuple[Any, Any]:
         """Creates synthetic questions based on a given question.
 
@@ -44,7 +45,7 @@ class QuestionFormationInterface(Protocol):
         raise NotImplementedError("create_synthetic_questions() is not implemented")
 
     def rephrase_question(
-        self, query: str, options: str, context: Context, answer: str
+            self, query: str, options: str, context: LongContext, answer: str
     ) -> Tuple[Any, Any]:
         """Rephrases a given question.
 

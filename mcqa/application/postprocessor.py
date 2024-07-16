@@ -1,13 +1,12 @@
-import logging
 import re
 
+from mcqa import logger
 from mcqa.application.evaluation import QAEvaluation
 from mcqa.domain.patterns import Patterns
 from mcqa.domain.postprocessor import PostProcessorInterface
 from mcqa.domain.response_generator import ResponseGeneratorResponse, ResponseMetadata
 
-logger = logging.getLogger("uvicorn.error")
-logger.setLevel(logging.DEBUG)
+logger = logger.setup_logger()
 
 
 class PostProcessor(PostProcessorInterface):

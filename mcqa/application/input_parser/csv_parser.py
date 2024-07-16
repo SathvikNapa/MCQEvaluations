@@ -1,12 +1,10 @@
-import logging
-
 import pandas as pd
 
+from mcqa import logger
 from mcqa.domain.input_parser import InputParser
-from mcqa.domain.response_generator import Context
+from mcqa.domain.response_generator import LongContext
 
-logger = logging.getLogger("uvicorn.error")
-logger.setLevel(logging.DEBUG)
+logger = logger.setup_logger()
 
 
 class CsvParser(InputParser):
@@ -19,19 +17,21 @@ class CsvParser(InputParser):
                 question = row["Question"]
                 option = row["All Answers"]
                 answer = row["Correct Answer"]
-                if row["source_type"] == "text":
-                    source_type = "text"
-                    source_path = row["Short_Context?"]
+                if row['Short_Context?']:
+                    short_context = row['Short_Context?']
                 else:
-                    source_type = row["source_type"]
-                    source_path = row["source_path"]
+                    short_context = None
+
+                source_type = row["source_type"]
+                source_path = row["source_path"]
 
                 requests.append(
                     [
                         question,
                         option,
                         answer,
-                        Context(context_type=source_type, link_or_text=source_path),
+                        LongContext(context_type=source_type, link_or_text=source_path),
+                        short_context
                     ]
                 )
 

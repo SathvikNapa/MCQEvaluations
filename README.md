@@ -55,8 +55,8 @@ Synthetic Response Payload
   "options": "A. 99mTc-sestamibi B. Thallium-201 (201Tl) C. Potassium-43 (43K) D. 99mTc-labeled human serum albumin E. Rubidium-82 (82Rb) F. 13N-ammonia G. 18F-FDG H. 15O-water",
   "answer": "D. 99mTc-labeled human serum albumin",
   "question_format": "synthetic",
-  "context": {
-    "context_type": "pdf",
+  "long_context": {
+    "file_type": "pdf",
     "link_or_text": "data/Dataset_Eval/PubMed_Pdfs/1.pdf"
   }
 }
@@ -70,8 +70,8 @@ Rephrase Response Payload
   "options": "A. 99mTc-sestamibi B. Thallium-201 (201Tl) C. Potassium-43 (43K) D. 99mTc-labeled human serum albumin E. Rubidium-82 (82Rb) F. 13N-ammonia G. 18F-FDG H. 15O-water",
   "answer": "D. 99mTc-labeled human serum albumin",
   "question_format": "rephrase",
-  "context": {
-    "context_type": "pdf",
+  "long_context": {
+    "file_type": "pdf",
     "link_or_text": "data/Dataset_Eval/PubMed_Pdfs/1.pdf"
   }
 }
@@ -85,8 +85,8 @@ Raw Response Payload
   "options": "A. 99mTc-sestamibi B. Thallium-201 (201Tl) C. Potassium-43 (43K) D. 99mTc-labeled human serum albumin E. Rubidium-82 (82Rb) F. 13N-ammonia G. 18F-FDG H. 15O-water",
   "answer": "D. 99mTc-labeled human serum albumin",
   "question_format": "raw",
-  "context": {
-    "context_type": "pdf",
+  "long_context": {
+    "file_type": "pdf",
     "link_or_text": "data/Dataset_Eval/PubMed_Pdfs/1.pdf"
   }
 }
@@ -94,9 +94,6 @@ Raw Response Payload
 
 ## Improvements
 
-- [x] Incorporate Multimodal response generation (Except PDF)
-- [X] Parse the options as arrays.
-- [ ] Prompt changes as discussed
 - [ ] Incorporate LiteLLM framework
 - [ ] Use TogetherAI for OpenLLM calls
 - [ ] Simplify the codebase
