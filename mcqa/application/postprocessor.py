@@ -1,6 +1,6 @@
 import re
 
-from mcqa import logger
+from mcqa.commons import logger
 from mcqa.application.evaluation import QAEvaluation
 from mcqa.domain.patterns import Patterns
 from mcqa.domain.postprocessor import PostProcessorInterface

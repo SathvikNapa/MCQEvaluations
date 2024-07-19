@@ -1,6 +1,6 @@
 from typing import Any
 
-from mcqa import logger
+from mcqa.commons import logger
 from mcqa.models.multimodal.gemini_multimodal_response_generator import GeminiMultimodalResponseGenerator
 from mcqa.models.multimodal.openai_multimodal_response_generator import OpenaiMultimodalResponseGenerator
 from mcqa.models.text.gemini_text_response_generator import GeminiTextResponseGenerator

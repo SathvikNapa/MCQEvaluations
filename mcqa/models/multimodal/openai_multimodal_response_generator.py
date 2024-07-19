@@ -3,7 +3,7 @@ from typing import Any
 
 from openai import OpenAI
 
-from mcqa import logger
+from mcqa.commons import logger
 from mcqa.domain.multimodal_response_generator import MultimodalResponseGenerator
 from mcqa.models.multimodal.config.openai_multimodal_config import OpenaiMultimodalConfig
 

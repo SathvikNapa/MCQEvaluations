@@ -140,9 +140,7 @@ Provide your final answer as per the format shown between <MCQRephrase></MCQReph
                 <Question>
                     [rephrased question in text]
                 </Question>
-                <Options>
-                    [options in text]
-                </Options>
+                <Options>[options in text in a single line with single space separation]</Options>
                 <Answer>
                     [answer in text]
                 </Answer>
@@ -251,7 +249,7 @@ Provide your final answer as per the format shown between <MCQSynthetic></MCQSyn
                     [rephrased question in text]
                 </Question>
                 <Options>
-                    [options in text]
+                    [options in text in a single line with single space separation]
                 </Options>
                 <Answer>
                     [answer in text]

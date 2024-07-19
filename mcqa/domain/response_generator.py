@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel
 
@@ -29,7 +29,7 @@ class Question(BaseModel):
     """A class used to define the structure of a generator request."""
 
     query: str
-    options: str
+    options: List[str]
     answer: str
     question_format: str  # rephrase, raw, synthetic
     long_context: LongContext

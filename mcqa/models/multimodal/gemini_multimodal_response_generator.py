@@ -3,7 +3,7 @@ from typing import Any
 
 import google.generativeai as genai
 
-from mcqa import logger
+from mcqa.commons import logger
 from mcqa.domain.multimodal_response_generator import MultimodalResponseGenerator
 from mcqa.models.multimodal.config.gemini_multimodal_config import GeminiMultimodalConfig
 

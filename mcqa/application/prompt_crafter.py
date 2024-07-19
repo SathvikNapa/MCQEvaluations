@@ -96,12 +96,13 @@ class PromptCrafter:
         )
         return user_prompt, SYSTEM_PROMPT
 
-    def _craft_multimodal_prompt(self, context_url: str, query: str, options: str):
+    def _craft_multimodal_prompt(self, context_url: str, query: str, options: str, short_context: str):
         """Crafts a multimodal prompt for image context."""
         parsed_multimodal_object = self.image_parser.parse(file_path=context_url)
         question = QuestionTemplate.format(question_text=query)
         option = OptionsTemplate.format(option_text=options)
-        user_prompt = MULTIMODAL_USER_PROMPT.format(question=question, option=option)
+        short_context = ShortContextTemplate.format(short_context=short_context)
+        user_prompt = MULTIMODAL_USER_PROMPT.format(question=question, option=option, short_context=short_context)
         return user_prompt, MULTIMODAL_SYSTEM_PROMPT, parsed_multimodal_object
 
     def _craft_synthetic_prompt(

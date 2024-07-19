@@ -6,7 +6,6 @@ from pydantic import BaseModel
 from mcqa.domain.response_generator import (
     Question,
     ResponsesGeneratorRequest,
-    ResponsesGeneratorResponse,
 )
 from mcqa.mcqa import Mcqa
 

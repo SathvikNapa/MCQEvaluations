@@ -1,6 +1,6 @@
 import re
 
-from mcqa import logger
+from mcqa.commons import logger
 from mcqa.domain.evaluation import Evaluation
 
 logger = logger.setup_logger()
