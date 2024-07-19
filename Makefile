@@ -2,6 +2,7 @@ start:
 	uvicorn mcqa.llm_api:app --reload
 
 setup:
+	source venv/bin/activate
 	poetry install
 
 format:
