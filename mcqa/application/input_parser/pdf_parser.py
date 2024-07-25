@@ -2,12 +2,14 @@ import base64
 from io import BytesIO
 
 import PyPDF2
-
-from mcqa.domain.input_parser import InputParser
 import google.generativeai as genai
+
 from mcqa.commons.logger import setup_logger
+from mcqa.domain.input_parser import InputParser
 
 logger = setup_logger()
+
+
 class PdfParser(InputParser):
     """A class used to parse PDF files.
 
@@ -42,5 +44,4 @@ class PdfParser(InputParser):
         return base64.b64encode(bytes_).decode("utf-8")
 
     def upload_pdf(self, file_path: str):
-        logger.debug("**reached uploading pdf**")
         return genai.upload_file(file_path)

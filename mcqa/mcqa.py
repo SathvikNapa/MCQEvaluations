@@ -1,24 +1,29 @@
 from __future__ import annotations
 
+import json
+import os
+import time
 from itertools import chain
 
 import tqdm
 
-from mcqa.commons import logger
-from mcqa.commons.regex import extract_regex
-from mcqa.dataloaders.csv_loader import CsvLoader
 from mcqa.application.postprocessor import PostProcessor
 from mcqa.application.prompt_crafter import PromptCrafter
+from mcqa.commons import logger
+from mcqa.commons.regex import extract_regex
 from mcqa.config import McqaConfig
+from mcqa.dataloaders.csv_loader import CsvLoader
 from mcqa.domain.mcqa import McqaInterface
+from mcqa.domain.patterns import Patterns
 from mcqa.domain.response_generator import (
     Question,
-    ResponsesGeneratorResponse,
+    ResponsesGeneratorResponse, RequestResponseLog, ExceptionLog,
 )
 from mcqa.llm_router import LLMRouter
-from mcqa.domain.patterns import Patterns
+
 logger = logger.setup_logger()
 from mcqa.application.question_formation import QuestionFormation
+
 
 class Mcqa(McqaInterface):
     """Class to handle MCQA (Multiple Choice Question Answering) operations."""
@@ -27,21 +32,25 @@ class Mcqa(McqaInterface):
         """Initializes the Mcqa instance with the given request."""
         self.mcqa_config = McqaConfig()
         self.request = request
-        self.postprocessor = PostProcessor(model=self.mcqa_config.text_model)
+        self.postprocessor = PostProcessor()
         self.question_formulator = QuestionFormation()
         self.prompt_crafter = PromptCrafter()
 
+    def _start_llm(self):
         if self.request.long_context.file_type in ["text"]:
-            self.llm_router = LLMRouter(text_model=self.mcqa_config.text_model)
+            self.model = self.mcqa_config.text_model
+            self.llm_router = LLMRouter(text_model=self.model)
         if self.request.long_context.file_type in ["image", "pdf"]:
-            self.llm_router = LLMRouter(multimodal_model=self.mcqa_config.multimodal_model)
+            self.model = self.mcqa_config.multimodal_model
+            self.llm_router = LLMRouter(multimodal_model=self.model)
+        self.llm_router.start_model()
 
     def generate_query_response(self):
         """Generates a response for the given query based on the context type."""
         question_format = self.request.question_format
 
         if question_format == "raw":
-            return self._generate_raw_response(self.llm_router)
+            return self._generate_raw_response()
         elif question_format in ["synthetic", "rephrase"]:
             return self.generate_modified_query_response()
 
@@ -53,7 +62,7 @@ class Mcqa(McqaInterface):
             prompt_object, options_text, answer = self._get_prompts(question_format)
 
             user_prompt, system_prompt = prompt_object
-            llm_router.start_model()
+            self._start_llm()
             response = llm_router.generate_llm_response(
                 system_prompt=system_prompt, user_prompt=user_prompt
             )
@@ -89,7 +98,7 @@ class Mcqa(McqaInterface):
             question_format = self.request.question_format
             prompt_object, options_text, answer = self._get_prompts(question_format)
             user_prompt, system_prompt, parsed_multimodal_object = prompt_object
-            llm_router.start_model()
+            self._start_llm()
             response = llm_router.generate_llm_response(
                 system_prompt=system_prompt, user_prompt=user_prompt, multimodal_object=parsed_multimodal_object
             )
@@ -116,7 +125,7 @@ class Mcqa(McqaInterface):
                 list_of_responses=responses, evaluation=evaluation
             )
 
-    def _generate_raw_response(self, llm_router):
+    def _generate_raw_response(self):
         """Generates a raw response using the LLM router."""
         if self.request.long_context.file_type in ["text"]:
             prompt_object, options_text, answer = self.question_formulator.use_raw_question(
@@ -128,13 +137,13 @@ class Mcqa(McqaInterface):
                 short_context=self.request.short_context,
             )
             user_prompt, system_prompt = prompt_object
-            llm_router.start_model()
-            response = llm_router.generate_llm_response(
+            self._start_llm()
+            response = self.llm_router.generate_llm_response(
                 system_prompt=system_prompt, user_prompt=user_prompt
             )
 
-
         if self.request.long_context.file_type in ["image", "pdf"]:
+            self._start_llm()
             prompt_object, options_text, answer = self.question_formulator.use_raw_question(
                 query=self.request.query,
                 options=self.request.options,
@@ -144,8 +153,8 @@ class Mcqa(McqaInterface):
                 short_context=self.request.short_context,
             )
             user_prompt, system_prompt, parsed_multimodal_object = prompt_object
-            llm_router.start_model()
-            response = llm_router.generate_llm_response(
+
+            response = self.llm_router.generate_llm_response(
                 system_prompt=system_prompt, user_prompt=user_prompt, multimodal_object=parsed_multimodal_object
             )
 
@@ -154,6 +163,7 @@ class Mcqa(McqaInterface):
             actual_answer=answer,
             question=self.request.query,
             options=options_text,
+            model=self.model
         )
 
     def _get_prompts(self, question_format):
@@ -161,7 +171,7 @@ class Mcqa(McqaInterface):
         if question_format == "synthetic":
             return self.question_formulator.create_synthetic_questions(
                 query=self.request.query,
-                options= self.request.options,
+                options=self.request.options,
                 context=self.request.long_context,
                 answer=self.request.answer,
                 short_context=self.request.short_context,
@@ -187,7 +197,7 @@ class Mcqa(McqaInterface):
             return rephrased_questions
 
     def generate_response_from_files(
-            self, file_path: str, file_type: str, question_format: str
+            self, file_path: str, file_type: str, question_format: str, output_path: str
     ):
         """Generates responses for queries from a file.
 
@@ -204,23 +214,44 @@ class Mcqa(McqaInterface):
 
             final_responses = []
             for _n, (query, option, answer, context, short_context) in tqdm.tqdm(enumerate(extracted_requests)):
+                if _n < 5:
+                    continue
+                request_payload = Question(
+                    query=query,
+                    options=option,
+                    answer=answer,
+                    question_format=question_format,
+                    long_context=context,
+                    short_context=short_context,
+                )
                 try:
                     request_obj = Mcqa(
-                        request=Question(
-                            query=query,
-                            options=option,
-                            answer=answer,
-                            question_format=question_format,
-                            long_context=context,
-                            short_context=short_context,
-                        )
+                        request=request_payload
                     )
+                    time.sleep(5)
                     response = request_obj.generate_query_response()
-
                     final_responses.append(response)
 
+                    request_response_log = RequestResponseLog(
+                        request=request_obj.request, response=response
+                    )
+
+                    # Extracting the output
+                    os.makedirs(output_path, exist_ok=True)
+                    with open(f"{output_path}/request_responseLog_geminiPro_{_n}.json", "w") as f:
+                        request_res_dict = request_response_log.dict()
+                        pretty_request_res_dict = json.dumps(request_res_dict, indent=4)
+                        f.write(pretty_request_res_dict)
+
                 except Exception as e:
-                    logger.error(e)
+                    os.makedirs(output_path, exist_ok=True)
+                    logger.error(f"Exception Occured: {e}")
+                    pretty_request_dict = json.dumps(request_payload.dict(), indent=4)
+                    exception_log = ExceptionLog(request=pretty_request_dict, exception=str(e))
+                    with open(f"{output_path}/exception_log_geminiPro_{_n}.json", "w") as f:
+                        exception_dict = exception_log.dict()
+                        pretty_exception_dict = json.dumps(exception_dict, indent=4)
+                        f.write(pretty_exception_dict)
                     continue
 
             if question_format in ["synthetic", "rephrase"]:

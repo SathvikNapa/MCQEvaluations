@@ -1,10 +1,10 @@
 import re
 
-from mcqa.commons import logger
 from mcqa.application.evaluation import QAEvaluation
+from mcqa.commons import logger
 from mcqa.domain.patterns import Patterns
 from mcqa.domain.postprocessor import PostProcessorInterface
-from mcqa.domain.response_generator import ResponseGeneratorResponse, ResponseMetadata
+from mcqa.domain.response_generator import QuestionResponse, ResponseMetadata
 
 logger = logger.setup_logger()
 
@@ -12,13 +12,12 @@ logger = logger.setup_logger()
 class PostProcessor(PostProcessorInterface):
     """Post-processor for extracting information from responses using regex patterns."""
 
-    def __init__(self, model: str):
+    def __init__(self):
         """Initializes the PostProcessor with the specified model.
 
         Args:
             model (str): The model used for response generation.
         """
-        self.model = model
         self.evaluation = QAEvaluation()
 
     def _extract_regex(self, pattern: str, text: str, default_value: str = "") -> str:
@@ -48,8 +47,8 @@ class PostProcessor(PostProcessorInterface):
         return pattern.findall(text)
 
     def postprocess(
-            self, generated_response: str, actual_answer: str, question: str, options: str
-    ) -> ResponseGeneratorResponse:
+            self, generated_response: str, actual_answer: str, question: str, options: str, model: str
+    ) -> QuestionResponse:
         """Post-processes the response to extract relevant fields and evaluate the answer.
 
         Args:
@@ -57,7 +56,7 @@ class PostProcessor(PostProcessorInterface):
             actual_answer (str): The actual answer to compare against.
 
         Returns:
-            ResponseGeneratorResponse: The post-processed response containing extracted fields.
+            QuestionResponse: The post-processed response containing extracted fields.
         """
         # logger.debug("Response: %s", generated_response)
         generated_answer = self._extract_regex(
@@ -76,7 +75,7 @@ class PostProcessor(PostProcessorInterface):
 
         # logger.debug("Evaluation: %s", evaluation)
 
-        return ResponseGeneratorResponse(
+        return QuestionResponse(
             generated_answer=generated_answer,
             actual_answer=actual_answer,
             question=question,
@@ -85,7 +84,7 @@ class PostProcessor(PostProcessorInterface):
             excerpts=excerpts,
             thinking=thinking,
             foundational_knowledge=foundational_knowledge,
-            metadata=ResponseMetadata(model=self.model),
+            metadata=ResponseMetadata(model=model),
         )
 
     def postprocess_rephrase(self, generated_response: str) -> list:

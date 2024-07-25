@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from mcqa.domain.response_generator import (
     Question,
-    ResponsesGeneratorRequest,
+    QuestionsFromSourcesRequest,
 )
 from mcqa.mcqa import Mcqa
 
@@ -43,7 +43,7 @@ def generate_response(user_query: Question):
 
 
 @app.post("/evaluate_from_files")
-def generate_responses(user_query: ResponsesGeneratorRequest):
+def generate_responses(user_query: QuestionsFromSourcesRequest):
     """Endpoint to generate responses for an imported csv file full of queries, options.
 
     Args:
@@ -57,6 +57,7 @@ def generate_responses(user_query: ResponsesGeneratorRequest):
         file_path=user_query.file_path,
         file_type=user_query.file_type,
         question_format=user_query.question_format,
+        output_path=user_query.output_path
     )
 
 

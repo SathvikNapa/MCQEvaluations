@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, List
+from typing import Optional, List, Any
 
 from pydantic import BaseModel
 
@@ -36,7 +36,7 @@ class Question(BaseModel):
     short_context: Optional[str] = None
 
 
-class ResponseGeneratorResponse(BaseModel):
+class QuestionResponse(BaseModel):
     """A class used to define the structure of a generator response."""
 
     generated_answer: str
@@ -50,11 +50,12 @@ class ResponseGeneratorResponse(BaseModel):
     metadata: ResponseMetadata
 
 
-class ResponsesGeneratorRequest(BaseModel):
+class QuestionsFromSourcesRequest(BaseModel):
     """A class used to define the structure of responses generator request."""
 
     file_type: str
     file_path: str
+    output_path: str
     question_format: str  # rephrase, raw, synthetic
 
 
@@ -62,7 +63,7 @@ class ResponsesGeneratorResponse(BaseModel):
     """A class used to define the structure of responses generator response."""
 
     evaluation: float
-    list_of_responses: list[ResponseGeneratorResponse]
+    list_of_responses: list[QuestionResponse]
 
 
 class RequestResponseLogs(BaseModel):
@@ -71,8 +72,14 @@ class RequestResponseLogs(BaseModel):
     request: Question
     response: ResponsesGeneratorResponse
 
-# class RequestResponseLog(BaseModel):
-#     """A class used to define the structure of a request response log."""
-#
-#     request: ResponseGeneratorRequest
-#     response: ResponseGeneratorResponse
+
+class RequestResponseLog(BaseModel):
+    """A class used to define the structure of a request response log."""
+
+    request: Question
+    response: QuestionResponse
+
+
+class ExceptionLog(BaseModel):
+    request: Any
+    exception: Any

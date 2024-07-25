@@ -3,8 +3,8 @@ import re
 import string
 from typing import List
 
-from mcqa.commons import logger
 from mcqa.application.prompt_crafter import PromptCrafter
+from mcqa.commons import logger
 from mcqa.domain.question_formation import QuestionFormationInterface
 from mcqa.domain.response_generator import LongContext
 
@@ -18,7 +18,6 @@ class QuestionFormation(QuestionFormationInterface):
         """Initializes the QuestionFormation."""
         self.prompt_crafter = PromptCrafter()
 
-
     def options_randomizer(self, options: List[str]):
         """Randomizes the order of options."""
         # split_options = self._extract_regex(options, Patterns.question_options_pattern)
@@ -26,17 +25,14 @@ class QuestionFormation(QuestionFormationInterface):
         shuffled_cleansed = random.sample(split_options, len(split_options))
         alphabet_sequence = random.sample(string.ascii_uppercase, len(split_options))
 
-
         shuffled_options = dict()
         for letter, option in zip(alphabet_sequence, shuffled_cleansed):
             new_option = letter + ". " + re.sub(r'\s*[A-Z]\.\s*', ' ', option)
             shuffled_options[new_option] = option
-            logger.debug(f"Alphabet:{letter} Option: {option} New Option: {new_option}")
-
 
         return dict(zip(shuffled_cleansed,
-                 [letter + ". " + re.sub(r'\s*[A-Z]\.\s*', '', option)
-                  for letter, option in zip(alphabet_sequence, shuffled_cleansed)]))
+                        [letter + ". " + re.sub(r'\s*[A-Z]\.\s*', '', option)
+                         for letter, option in zip(alphabet_sequence, shuffled_cleansed)]))
 
     def use_raw_question(
             self,
