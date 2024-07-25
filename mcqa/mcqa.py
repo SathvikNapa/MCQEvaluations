@@ -31,9 +31,9 @@ class Mcqa(McqaInterface):
         self.question_formulator = QuestionFormation()
         self.prompt_crafter = PromptCrafter()
 
-        if self.request.long_context.file_type in ["text", "pdf"]:
+        if self.request.long_context.file_type in ["text"]:
             self.llm_router = LLMRouter(text_model=self.mcqa_config.text_model)
-        if self.request.long_context.file_type in ["image"]:
+        if self.request.long_context.file_type in ["image", "pdf"]:
             self.llm_router = LLMRouter(multimodal_model=self.mcqa_config.multimodal_model)
 
     def generate_query_response(self):
@@ -47,7 +47,7 @@ class Mcqa(McqaInterface):
 
     def generate_modified_query_response(self):
         """Generates a modified query response based on the context type."""
-        if self.request.long_context.file_type in ["text", "pdf"]:
+        if self.request.long_context.file_type in ["text"]:
             llm_router = LLMRouter(text_model=self.mcqa_config.text_model)
             question_format = self.request.question_format
             prompt_object, options_text, answer = self._get_prompts(question_format)
@@ -84,7 +84,7 @@ class Mcqa(McqaInterface):
                 list_of_responses=responses, evaluation=evaluation
             )
 
-        if self.request.long_context.file_type in ["image"]:
+        if self.request.long_context.file_type in ["pdf", "image"]:
             llm_router = LLMRouter(multimodal_model=self.mcqa_config.multimodal_model)
             question_format = self.request.question_format
             prompt_object, options_text, answer = self._get_prompts(question_format)
@@ -118,7 +118,7 @@ class Mcqa(McqaInterface):
 
     def _generate_raw_response(self, llm_router):
         """Generates a raw response using the LLM router."""
-        if self.request.long_context.file_type in ["text", "pdf"]:
+        if self.request.long_context.file_type in ["text"]:
             prompt_object, options_text, answer = self.question_formulator.use_raw_question(
                 query=self.request.query,
                 options=self.request.options,
@@ -133,7 +133,8 @@ class Mcqa(McqaInterface):
                 system_prompt=system_prompt, user_prompt=user_prompt
             )
 
-        if self.request.long_context.file_type in ["image"]:
+
+        if self.request.long_context.file_type in ["image", "pdf"]:
             prompt_object, options_text, answer = self.question_formulator.use_raw_question(
                 query=self.request.query,
                 options=self.request.options,

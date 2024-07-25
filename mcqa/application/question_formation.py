@@ -24,7 +24,16 @@ class QuestionFormation(QuestionFormationInterface):
         # split_options = self._extract_regex(options, Patterns.question_options_pattern)
         split_options = [re.sub(r'\s{2,}', '', option).replace("\n", "") for option in options]
         shuffled_cleansed = random.sample(split_options, len(split_options))
-        alphabet_sequence = string.ascii_uppercase[:len(shuffled_cleansed)]
+        alphabet_sequence = random.sample(string.ascii_uppercase, len(split_options))
+
+
+        shuffled_options = dict()
+        for letter, option in zip(alphabet_sequence, shuffled_cleansed):
+            new_option = letter + ". " + re.sub(r'\s*[A-Z]\.\s*', ' ', option)
+            shuffled_options[new_option] = option
+            logger.debug(f"Alphabet:{letter} Option: {option} New Option: {new_option}")
+
+
         return dict(zip(shuffled_cleansed,
                  [letter + ". " + re.sub(r'\s*[A-Z]\.\s*', '', option)
                   for letter, option in zip(alphabet_sequence, shuffled_cleansed)]))

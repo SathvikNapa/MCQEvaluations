@@ -38,15 +38,15 @@ class PromptCrafter:
             short_context: str
     ):
         """Crafts the appropriate prompt based on the context type and question format."""
-        if context.file_type in ["image"]:
+        if context.file_type in ["pdf", "image"]:
             if question_format == "rephrase":
                 return self._craft_rephrase_prompt(query, options, answer, context)
             if question_format == "synthetic":
                 return self._craft_synthetic_prompt(n_questions=5, query=query, options=options, answer=answer,
                                                     context=context, short_context=short_context)
-            return self._craft_multimodal_prompt(context.link_or_text, query, options, short_context)
+            return self._craft_multimodal_prompt(context, query, options, short_context)
 
-        elif context.file_type in ["pdf", "text"]:
+        elif context.file_type in ["text"]:
             if question_format == "rephrase":
                 return self._craft_rephrase_prompt(query, options, answer, context)
             if question_format == "synthetic":
@@ -57,10 +57,14 @@ class PromptCrafter:
                 context, query, options, short_context
             )
 
-    def _craft_rephrase_prompt(self, query: str, options: str, answer: str, context: LongContext):
+    def _craft_rephrase_prompt(self, query: str, options: str,
+                               answer: str, context: LongContext):
         """Crafts a rephrasing prompt."""
-        if context.file_type in ["image"]:
-            parsed_multimodal_object = self.image_parser.parse(file_path=context.link_or_text)
+        if context.file_type in ["image", "pdf"]:
+            if context.file_type == "image":
+                parsed_multimodal_object = self.image_parser.parse(file_path=context.link_or_text)
+            if context.file_type == "pdf":
+                parsed_multimodal_object = self.pdf_parser.upload_pdf(file_path=context.link_or_text)
             question = QuestionTemplate.format(question_text=query)
             option = OptionsTemplate.format(option_text=options)
             answer = AnswerTemplate.format(answer=answer)
@@ -68,6 +72,7 @@ class PromptCrafter:
                 question=question, option=option, answer=answer
             )
             return user_prompt, REPHRASE_SYSTEM_PROMPT, parsed_multimodal_object
+
 
         question = QuestionTemplate.format(question_text=query)
         option = OptionsTemplate.format(option_text=options)
@@ -96,9 +101,15 @@ class PromptCrafter:
         )
         return user_prompt, SYSTEM_PROMPT
 
-    def _craft_multimodal_prompt(self, context_url: str, query: str, options: str, short_context: str):
+    def _craft_multimodal_prompt(self, context: str, query: str, options: str, short_context: str):
         """Crafts a multimodal prompt for image context."""
-        parsed_multimodal_object = self.image_parser.parse(file_path=context_url)
+
+        if context.file_type == "image":
+            parsed_multimodal_object = self.image_parser.parse(file_path=context.link_or_text)
+
+        if context.file_type == "pdf":
+            parsed_multimodal_object = self.pdf_parser.upload_pdf(file_path=context.link_or_text)
+
         question = QuestionTemplate.format(question_text=query)
         option = OptionsTemplate.format(option_text=options)
         short_context = ShortContextTemplate.format(short_context=short_context)
@@ -108,7 +119,7 @@ class PromptCrafter:
     def _craft_synthetic_prompt(
             self, n_questions: int, query: str, options: str, answer: str, context: Any, short_context: str
     ):
-        if context.file_type in ["text", "pdf"]:
+        if context.file_type in ["text"]:
 
             if context.file_type == "pdf":
                 context_text = self.pdf_parser.parse(context.link_or_text)
@@ -132,9 +143,13 @@ class PromptCrafter:
             )
             return user_prompt, SYNTHETIC_SYSTEM_PROMPT
 
-        if context.file_type in ["image"]:
+        if context.file_type in ["image", "pdf"]:
             """Crafts a synthetic prompt for generating multiple questions."""
-            parsed_multimodal_object = self.image_parser.parse(file_path=context.link_or_text)
+
+            if context.file_type == "image":
+                parsed_multimodal_object = self.image_parser.parse(file_path=context.link_or_text)
+            if context.file_type == "pdf":
+                parsed_multimodal_object = self.image_parser.parse(file_path=context.link_or_text)
             question = QuestionTemplate.format(question_text=query)
             option = OptionsTemplate.format(option_text=options)
             answer = AnswerTemplate.format(answer=answer)

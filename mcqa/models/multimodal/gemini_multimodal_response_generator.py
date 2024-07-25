@@ -45,9 +45,7 @@ class GeminiMultimodalResponseGenerator(MultimodalResponseGenerator):
             str: The generated response text.
         """
 
-        parsed_multimodal_object = {"mime_type": "image/png", "data": multimodal_object}
-
         response = self.llm_model.generate_content(
-            ([system_prompt, user_prompt, parsed_multimodal_object]))
+            ([system_prompt, user_prompt, multimodal_object]),)
         logger.debug(f"Generated response: {response.text}")
         return response.text
