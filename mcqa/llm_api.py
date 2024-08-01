@@ -56,6 +56,7 @@ def generate_responses(user_query: QuestionsFromSourcesRequest):
     return mcqa.generate_response_from_files(
         file_path=user_query.file_path,
         file_type=user_query.file_type,
+        options_randomizer=user_query.options_randomizer,
         question_format=user_query.question_format,
         output_path=user_query.output_path
     )

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, List
 
 from openai import OpenAI
 
@@ -30,7 +30,7 @@ class OpenaiMultimodalResponseGenerator(MultimodalResponseGenerator):
         self.llm_model = OpenAI(api_key=self.openai_config.openai_api_key)
 
     def generate_multimodal_response(self, system_prompt: str, user_prompt: str,
-                                     multimodal_object: Any, url: str = None) -> str:
+                                     multimodal_objects: List[Any], url: str = None) -> str:
         """Generates a multimodal response.
 
         This function generates a multimodal response using the system prompt, user prompt, and a multimodal object.
@@ -38,24 +38,27 @@ class OpenaiMultimodalResponseGenerator(MultimodalResponseGenerator):
         Args:
             system_prompt (str): The system prompt.
             user_prompt (str): The user prompt.
-            multimodal_object (Any): The multimodal object.
+            multimodal_objects (Any): The multimodal object.
             url (str): The URL of the multimodal object
 
         Returns:
             str: The generated response text.
         """
-        logger.debug(f"Multimodal object: {multimodal_object}")
+        logger.debug(f"Multimodal object: {multimodal_objects}")
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": [
+                {"type": "text", "text": user_prompt},
+            ]}]
+
+        messages.extend([{"type": "image_url", "image_url": {
+            "url": f"data:image/png;base64,{object}"}
+                          } for object in multimodal_objects])
+
         response = self.llm_model.chat.completions.create(
             model=self.openai_config.multimodal_generation_model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": [
-                    {"type": "text", "text": user_prompt},
-                    {"type": "image_url", "image_url": {
-                        "url": f"data:image/png;base64,{multimodal_object}"}
-                     }
-                ]}
-            ],
+            messages=messages,
             temperature=self.openai_config.temperature,
         )
         logger.debug(f"Generated response: {response.text}")

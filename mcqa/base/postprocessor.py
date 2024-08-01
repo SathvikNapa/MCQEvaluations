@@ -1,6 +1,6 @@
 import re
 
-from mcqa.application.evaluation import QAEvaluation
+from mcqa.base.evaluation import QAEvaluation
 from mcqa.commons import logger
 from mcqa.domain.patterns import Patterns
 from mcqa.domain.postprocessor import PostProcessorInterface
@@ -45,6 +45,24 @@ class PostProcessor(PostProcessorInterface):
             list: A list of all matches found.
         """
         return pattern.findall(text)
+
+    def naive_postprocess(self, generated_response: str, actual_answer: str, question: str, options: str, model: str):
+        # logger.debug(f"Response: {generated_response}")
+        generated_answer = self._extract_regex(
+            Patterns.answer, generated_response, generated_response
+        )
+        evaluation = self.evaluation.evaluate(generated_answer, actual_answer)
+        return QuestionResponse(
+            generated_answer=generated_answer,
+            actual_answer=actual_answer,
+            question=question,
+            options=options,
+            evaluation=evaluation,
+            excerpts="None",
+            thinking="None",
+            foundational_knowledge="None",
+            metadata=ResponseMetadata(model=model),
+        )
 
     def postprocess(
             self, generated_response: str, actual_answer: str, question: str, options: str, model: str

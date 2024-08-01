@@ -1,3 +1,19 @@
+BASE_SYSTEM_PROMPT = """
+Analyze the context and answer the multiple-choice question. 
+Base the answer solely off the given context, not prior knowledge, because prior knowledge may be wrong or contradict the context. 
+Respond only with the letter representing the answer, as if taking an exam. 
+Do not provide explanations or commentary. 
+The context may include text, files, and images.
+
+Expected Response Format
+<MCQResponse>
+    <Answer>[Option]</Answer>
+</MCQResponse>
+
+USER INPUT :\n\n
+"""
+BASE_MULTIMODAL_SYSTEM_PROOMPT = """"""
+
 SYSTEM_PROMPT = """You will act as Medical AI chatbot, which answers multiple choice questions and chooses one of the options.
 You will receive a question and a relevant context in the XML format. The XMl contains the following:
 
@@ -273,3 +289,16 @@ SYNTHETIC_USER_PROMPT = """<Case>{n_questions}{query}{option}{answer}{context}{s
 TEXT_USER_PROMPT = """<Case>{question}{option}{context}{short_context}</Case>"""
 MULTIMODAL_USER_PROMPT = """<Case>{question}{option}{short_context}</Case>"""
 MULTIMODAL_SYNTHETIC_USER_PROMPT = """<Case>{n_questions}{query}{option}{answer}{short_context}</Case>"""
+
+BASE_TEXT_USER_PROMPT = """
+Context: {context}
+Question: {question_text}
+Option: {option_text}
+Short Context: {short_context}
+"""
+
+BASE_MULTIMODAL_USER_PROMPT = """
+Question: {question_text}
+Option: {option_text}
+Short Context: {short_context}
+"""

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Any
+from itertools import chain
+from typing import Any, List
 
 import google.generativeai as genai
 
@@ -30,7 +31,7 @@ class GeminiMultimodalResponseGenerator(MultimodalResponseGenerator):
         self.llm_model = genai.GenerativeModel(self.gemini_config.multimodal_generation_model)
 
     def generate_multimodal_response(self, system_prompt: str, user_prompt: str,
-                                     multimodal_object: Any, url: str = None) -> str:
+                                     multimodal_objects: List[Any], url: str = None) -> str:
         """Generates a multimodal response.
 
         This function generates a multimodal response using the system prompt, user prompt, and a multimodal object.
@@ -38,14 +39,17 @@ class GeminiMultimodalResponseGenerator(MultimodalResponseGenerator):
         Args:
             system_prompt (str): The system prompt.
             user_prompt (str): The user prompt.
-            multimodal_object (Any): The multimodal object.
+            multimodal_objects (Any): The multimodal object.
             url (str): The URL of the multimodal object.
 
         Returns:
             str: The generated response text.
         """
+        request_object = list(
+            chain.from_iterable(item if isinstance(item, list) else [item] for item in
+                                [system_prompt, user_prompt, multimodal_objects[::-1]]))
 
         response = self.llm_model.generate_content(
-            ([system_prompt, user_prompt, multimodal_object]),)
+            (request_object), )
         logger.debug(f"Generated response: {response.text}")
         return response.text

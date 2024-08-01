@@ -18,22 +18,17 @@ class ResponseMetadata(BaseModel):
     model: str
 
 
-class LongContext(BaseModel):
-    """A class used to store context."""
-
-    file_type: str
-    link_or_text: Optional[str] = None
-
-
 class Question(BaseModel):
     """A class used to define the structure of a generator request."""
 
-    query: str
+    question: str
     options: List[str]
     answer: str
     question_format: str  # rephrase, raw, synthetic
-    long_context: LongContext
-    short_context: Optional[str] = None
+    attachments: Optional[List] = []
+    options_randomizer: Optional[bool] = None
+    full_context_path: str
+    question_context: Optional[str] = None
 
 
 class QuestionResponse(BaseModel):
@@ -56,6 +51,7 @@ class QuestionsFromSourcesRequest(BaseModel):
     file_type: str
     file_path: str
     output_path: str
+    options_randomizer: Optional[bool] = None
     question_format: str  # rephrase, raw, synthetic
 
 

@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
 from itertools import chain
 
 import tqdm
 
-from mcqa.application.postprocessor import PostProcessor
-from mcqa.application.prompt_crafter import PromptCrafter
+from mcqa.base.input_parser.parser import Parser
+from mcqa.base.postprocessor import PostProcessor
+from mcqa.base.prompt_crafter import PromptCrafter
 from mcqa.commons import logger
 from mcqa.commons.regex import extract_regex
 from mcqa.config import McqaConfig
@@ -22,7 +24,7 @@ from mcqa.domain.response_generator import (
 from mcqa.llm_router import LLMRouter
 
 logger = logger.setup_logger()
-from mcqa.application.question_formation import QuestionFormation
+from mcqa.base.question_formation import QuestionFormation
 
 
 class Mcqa(McqaInterface):
@@ -35,12 +37,13 @@ class Mcqa(McqaInterface):
         self.postprocessor = PostProcessor()
         self.question_formulator = QuestionFormation()
         self.prompt_crafter = PromptCrafter()
+        self.input_parser = Parser()
 
     def _start_llm(self):
-        if self.request.long_context.file_type in ["text"]:
+        if ".txt" in self.request.full_context_path:
             self.model = self.mcqa_config.text_model
             self.llm_router = LLMRouter(text_model=self.model)
-        if self.request.long_context.file_type in ["image", "pdf"]:
+        if self.request.full_context_path.endswith(('pdf', 'png', 'jpeg', 'jpg')):
             self.model = self.mcqa_config.multimodal_model
             self.llm_router = LLMRouter(multimodal_model=self.model)
         self.llm_router.start_model()
@@ -48,22 +51,23 @@ class Mcqa(McqaInterface):
     def generate_query_response(self):
         """Generates a response for the given query based on the context type."""
         question_format = self.request.question_format
+        self.request.options.extend(["Y. Not enough information to answer", "Z. Answer not listed"])
 
-        if question_format == "raw":
+        if question_format in ["raw", "naive"]:
             return self._generate_raw_response()
         elif question_format in ["synthetic", "rephrase"]:
             return self.generate_modified_query_response()
 
     def generate_modified_query_response(self):
         """Generates a modified query response based on the context type."""
-        if self.request.long_context.file_type in ["text"]:
-            llm_router = LLMRouter(text_model=self.mcqa_config.text_model)
+        if self.request.full_context_path.endswith(".txt"):
+            self.llm_router = LLMRouter(text_model=self.mcqa_config.text_model)
             question_format = self.request.question_format
             prompt_object, options_text, answer = self._get_prompts(question_format)
 
             user_prompt, system_prompt = prompt_object
             self._start_llm()
-            response = llm_router.generate_llm_response(
+            response = self.llm_router.generate_llm_response(
                 system_prompt=system_prompt, user_prompt=user_prompt
             )
             rephrased_questions = self._postprocess_response(response, question_format)
@@ -76,10 +80,11 @@ class Mcqa(McqaInterface):
                             request=Question(
                                 query=question,
                                 options=extract_regex(options, pattern=Patterns.question_options_pattern),
-                                long_context=self.request.long_context,
+                                long_context=self.request.full_context_path,
+                                options_randomizer=self.request.options_randomizer,
                                 answer=answer,
                                 question_format="raw",
-                                short_context=self.request.short_context,
+                                short_context=self.request.question_context,
                             )
                         ).generate_query_response())
                 except Exception as e:
@@ -93,26 +98,31 @@ class Mcqa(McqaInterface):
                 list_of_responses=responses, evaluation=evaluation
             )
 
-        if self.request.long_context.file_type in ["pdf", "image"]:
-            llm_router = LLMRouter(multimodal_model=self.mcqa_config.multimodal_model)
+        if self.request.full_context_path.endswith((".pdf", ".png", ".jpeg", ".jpg")):
+            self._start_llm()
             question_format = self.request.question_format
             prompt_object, options_text, answer = self._get_prompts(question_format)
-            user_prompt, system_prompt, parsed_multimodal_object = prompt_object
-            self._start_llm()
-            response = llm_router.generate_llm_response(
-                system_prompt=system_prompt, user_prompt=user_prompt, multimodal_object=parsed_multimodal_object
+            user_prompt, system_prompt = prompt_object
+
+            self.request.attachments.append(self.request.full_context_path)
+            parsed_multimodal_objects = [self.input_parser.parse(file_path=path) for path in
+                                         self.request.attachments]
+
+            response = self.llm_router.generate_llm_response(
+                system_prompt=system_prompt, user_prompt=user_prompt, multimodal_object=parsed_multimodal_objects
             )
             rephrased_questions = self._postprocess_response(response, question_format)
 
             responses = [
                 Mcqa(
                     request=Question(
-                        query=question,
+                        question=question,
                         options=extract_regex(options, pattern=Patterns.question_options_pattern),
-                        long_context=self.request.long_context,
+                        full_context_path=self.request.full_context_path,
+                        options_randomizer=self.request.options_randomizer,
                         answer=answer,
                         question_format="raw",
-                        short_context=self.request.short_context,
+                        question_context=self.request.question_context,
                     )
                 ).generate_query_response()
                 for question, options, answer in tqdm.tqdm(rephrased_questions)
@@ -127,14 +137,16 @@ class Mcqa(McqaInterface):
 
     def _generate_raw_response(self):
         """Generates a raw response using the LLM router."""
-        if self.request.long_context.file_type in ["text"]:
+        if "txt" in self.request.full_context_path:
             prompt_object, options_text, answer = self.question_formulator.use_raw_question(
-                query=self.request.query,
+                query=self.request.question,
                 options=self.request.options,
-                context=self.request.long_context,
+                attachments=self.request.attachments,
+                full_context_path=self.request.full_context_path,
                 answer=self.request.answer,
+                options_randomizer=self.request.options_randomizer,
                 question_format=self.request.question_format,
-                short_context=self.request.short_context,
+                short_context=self.request.question_context,
             )
             user_prompt, system_prompt = prompt_object
             self._start_llm()
@@ -142,26 +154,39 @@ class Mcqa(McqaInterface):
                 system_prompt=system_prompt, user_prompt=user_prompt
             )
 
-        if self.request.long_context.file_type in ["image", "pdf"]:
+        if re.search("|".join(['pdf', 'png', 'jpeg', 'jpg']), self.request.full_context_path):
             self._start_llm()
             prompt_object, options_text, answer = self.question_formulator.use_raw_question(
-                query=self.request.query,
+                query=self.request.question,
                 options=self.request.options,
-                context=self.request.long_context,
+                full_context_path=self.request.full_context_path,
+                options_randomizer=self.request.options_randomizer,
                 answer=self.request.answer,
                 question_format=self.request.question_format,
-                short_context=self.request.short_context,
+                short_context=self.request.question_context,
             )
-            user_prompt, system_prompt, parsed_multimodal_object = prompt_object
+            self.request.attachments.append(self.request.full_context_path)
+            parsed_multimodal_objects = [self.input_parser.parse(file_path=path) for path in
+                                         self.request.attachments]
+            user_prompt, system_prompt, = prompt_object
 
             response = self.llm_router.generate_llm_response(
-                system_prompt=system_prompt, user_prompt=user_prompt, multimodal_object=parsed_multimodal_object
+                system_prompt=system_prompt, user_prompt=user_prompt,
+                multimodal_object=parsed_multimodal_objects
             )
+            if self.request.question_format in ["naive"]:
+                return self.postprocessor.naive_postprocess(
+                    generated_response=response,
+                    actual_answer=answer,
+                    question=self.request.question,
+                    options=options_text,
+                    model=self.model
+                )
 
         return self.postprocessor.postprocess(
             generated_response=response,
             actual_answer=answer,
-            question=self.request.query,
+            question=self.request.question,
             options=options_text,
             model=self.model
         )
@@ -170,19 +195,19 @@ class Mcqa(McqaInterface):
         """Returns the appropriate prompts based on the question format."""
         if question_format == "synthetic":
             return self.question_formulator.create_synthetic_questions(
-                query=self.request.query,
+                query=self.request.question,
                 options=self.request.options,
-                context=self.request.long_context,
+                full_context_path=self.request.full_context_path,
                 answer=self.request.answer,
-                short_context=self.request.short_context,
+                short_context=self.request.question_context,
             )
         elif question_format == "rephrase":
             return self.question_formulator.rephrase_question(
-                query=self.request.query,
+                query=self.request.question,
                 options=self.request.options,
-                context=self.request.long_context,
+                full_context_path=self.request.full_context_path,
                 answer=self.request.answer,
-                short_context=self.request.short_context,
+                short_context=self.request.question_context,
             )
 
     def _postprocess_response(self, response, question_format):
@@ -197,7 +222,8 @@ class Mcqa(McqaInterface):
             return rephrased_questions
 
     def generate_response_from_files(
-            self, file_path: str, file_type: str, question_format: str, output_path: str
+            self, file_path: str, file_type: str, question_format: str, output_path: str,
+            options_randomizer: bool = False
     ):
         """Generates responses for queries from a file.
 
@@ -210,16 +236,18 @@ class Mcqa(McqaInterface):
             ResponsesGeneratorResponse: The response generated by the MCQA system.
         """
         if file_type == "csv":
-            extracted_requests = CsvLoader().handle_csv(file_path=file_path)
+            extracted_requests = CsvLoader(options_randomizer=options_randomizer).handle_csv(file_path=file_path)
 
             final_responses = []
-            for _n, (query, option, answer, context, short_context) in tqdm.tqdm(enumerate(extracted_requests)):
-                if _n < 5:
-                    continue
+            for _n, (query, option, answer, context, short_context, options_randomizer) in tqdm.tqdm(
+                    enumerate(extracted_requests)):
+                # if _n < 5:
+                #     continue
                 request_payload = Question(
                     query=query,
                     options=option,
                     answer=answer,
+                    options_randomizer=options_randomizer,
                     question_format=question_format,
                     long_context=context,
                     short_context=short_context,
