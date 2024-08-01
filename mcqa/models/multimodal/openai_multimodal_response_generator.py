@@ -4,8 +4,10 @@ from typing import Any, List
 from openai import OpenAI
 
 from mcqa.commons import logger
-from mcqa.domain.multimodal_response_generator import MultimodalResponseGenerator
-from mcqa.models.multimodal.config.openai_multimodal_config import OpenaiMultimodalConfig
+from mcqa.domain.multimodal_response_generator import \
+    MultimodalResponseGenerator
+from mcqa.models.multimodal.config.openai_multimodal_config import \
+    OpenaiMultimodalConfig
 
 logger = logger.setup_logger()
 
@@ -29,8 +31,13 @@ class OpenaiMultimodalResponseGenerator(MultimodalResponseGenerator):
         logger.debug(f"Initiating {self.openai_config.openai_api_key} Multimodal model")
         self.llm_model = OpenAI(api_key=self.openai_config.openai_api_key)
 
-    def generate_multimodal_response(self, system_prompt: str, user_prompt: str,
-                                     multimodal_objects: List[Any], url: str = None) -> str:
+    def generate_multimodal_response(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        multimodal_objects: List[Any],
+        url: str = None,
+    ) -> str:
         """Generates a multimodal response.
 
         This function generates a multimodal response using the system prompt, user prompt, and a multimodal object.
@@ -48,13 +55,23 @@ class OpenaiMultimodalResponseGenerator(MultimodalResponseGenerator):
 
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": [
-                {"type": "text", "text": user_prompt},
-            ]}]
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": user_prompt},
+                ],
+            },
+        ]
 
-        messages.extend([{"type": "image_url", "image_url": {
-            "url": f"data:image/png;base64,{object}"}
-                          } for object in multimodal_objects])
+        messages.extend(
+            [
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/png;base64,{object}"},
+                }
+                for object in multimodal_objects
+            ]
+        )
 
         response = self.llm_model.chat.completions.create(
             model=self.openai_config.multimodal_generation_model,

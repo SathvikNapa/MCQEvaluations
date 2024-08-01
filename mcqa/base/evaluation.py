@@ -35,7 +35,9 @@ class QAEvaluation(Evaluation):
         logger.debug("Actual Answer: %s", actual_answer)
 
         if re.search(r"\s*[A-Z]", self._clean_text(actual_answer)):
-            treated_answer = re.findall(r"\s*[A-Z]", self._clean_text(actual_answer))[0].strip()
+            treated_answer = re.findall(r"\s*[A-Z]", self._clean_text(actual_answer))[
+                0
+            ].strip()
         else:
             treated_answer = self._clean_text(actual_answer)
 

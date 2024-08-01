@@ -20,8 +20,13 @@ class MultimodalResponseGenerator:
         """
         raise NotImplementedError("start_llm is not implemented")
 
-    def generate_multimodal_response(self, system_prompt: str, user_prompt: str,
-                                     multimodal_object: Any, url: str = None):
+    def generate_multimodal_response(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        multimodal_object: Any,
+        url: str = None,
+    ):
         """Generates a multimodal response.
 
         This function should be overridden in a subclass. It is expected to generate a multimodal response.

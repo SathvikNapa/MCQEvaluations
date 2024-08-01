@@ -5,8 +5,10 @@ from typing import Any, List
 import google.generativeai as genai
 
 from mcqa.commons import logger
-from mcqa.domain.multimodal_response_generator import MultimodalResponseGenerator
-from mcqa.models.multimodal.config.gemini_multimodal_config import GeminiMultimodalConfig
+from mcqa.domain.multimodal_response_generator import \
+    MultimodalResponseGenerator
+from mcqa.models.multimodal.config.gemini_multimodal_config import \
+    GeminiMultimodalConfig
 
 logger = logger.setup_logger()
 
@@ -27,11 +29,20 @@ class GeminiMultimodalResponseGenerator(MultimodalResponseGenerator):
 
         This function initializes the LLM client with the custom model specified in config.
         """
-        logger.debug(f"Initiating {self.gemini_config.multimodal_generation_model} Multimodal model")
-        self.llm_model = genai.GenerativeModel(self.gemini_config.multimodal_generation_model)
+        logger.debug(
+            f"Initiating {self.gemini_config.multimodal_generation_model} Multimodal model"
+        )
+        self.llm_model = genai.GenerativeModel(
+            self.gemini_config.multimodal_generation_model
+        )
 
-    def generate_multimodal_response(self, system_prompt: str, user_prompt: str,
-                                     multimodal_objects: List[Any], url: str = None) -> str:
+    def generate_multimodal_response(
+            self,
+            system_prompt: str,
+            user_prompt: str,
+            multimodal_objects: List[Any],
+            url: str = None,
+    ) -> str:
         """Generates a multimodal response.
 
         This function generates a multimodal response using the system prompt, user prompt, and a multimodal object.
@@ -46,10 +57,13 @@ class GeminiMultimodalResponseGenerator(MultimodalResponseGenerator):
             str: The generated response text.
         """
         request_object = list(
-            chain.from_iterable(item if isinstance(item, list) else [item] for item in
-                                [system_prompt, user_prompt, multimodal_objects[::-1]]))
+            chain.from_iterable(
+                item if isinstance(item, list) else [item]
+                for item in [system_prompt, user_prompt, multimodal_objects[::-1]]
+            )
+        )
 
         response = self.llm_model.generate_content(
-            (request_object), )
-        logger.debug(f"Generated response: {response.text}")
+            (request_object),
+        )
         return response.text

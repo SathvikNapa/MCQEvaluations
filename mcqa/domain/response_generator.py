@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, List, Any
+from typing import Any, List, Optional
 
 from pydantic import BaseModel
 
@@ -55,7 +55,7 @@ class QuestionsFromSourcesRequest(BaseModel):
     question_format: str  # rephrase, raw, synthetic
 
 
-class ResponsesGeneratorResponse(BaseModel):
+class ResponsesFromSources(BaseModel):
     """A class used to define the structure of responses generator response."""
 
     evaluation: float
@@ -66,7 +66,7 @@ class RequestResponseLogs(BaseModel):
     """A class used to define the structure of a request response log."""
 
     request: Question
-    response: ResponsesGeneratorResponse
+    response: ResponsesFromSources
 
 
 class RequestResponseLog(BaseModel):

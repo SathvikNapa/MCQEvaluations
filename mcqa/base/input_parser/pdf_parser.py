@@ -1,8 +1,8 @@
 import base64
 from io import BytesIO
 
-import PyPDF2
 import google.generativeai as genai
+import PyPDF2
 
 from mcqa.commons.logger import setup_logger
 from mcqa.domain.input_parser import InputParser

@@ -285,10 +285,14 @@ NumberOfQuestionsTemplate = (
 ShortContextTemplate = """\n<ShortContext>{short_context}</ShortContext>\n"""
 
 REPHRASE_USER_PROMPT = """<Case>{question}{option}{answer}</Case>"""
-SYNTHETIC_USER_PROMPT = """<Case>{n_questions}{query}{option}{answer}{context}{short_context}</Case>"""
+SYNTHETIC_USER_PROMPT = (
+    """<Case>{n_questions}{query}{option}{answer}{context}{short_context}</Case>"""
+)
 TEXT_USER_PROMPT = """<Case>{question}{option}{context}{short_context}</Case>"""
 MULTIMODAL_USER_PROMPT = """<Case>{question}{option}{short_context}</Case>"""
-MULTIMODAL_SYNTHETIC_USER_PROMPT = """<Case>{n_questions}{query}{option}{answer}{short_context}</Case>"""
+MULTIMODAL_SYNTHETIC_USER_PROMPT = (
+    """<Case>{n_questions}{query}{option}{answer}{short_context}</Case>"""
+)
 
 BASE_TEXT_USER_PROMPT = """
 Context: {context}

@@ -11,8 +11,8 @@ class Parser(InputParser):
     def parse(self, file_path: str):
         if file_path is None:
             return None
-        if file_path.endswith('.pdf'):
+        if file_path.endswith(".pdf"):
             return self.pdf_parser.upload_pdf(file_path=file_path)
 
-        if file_path.endswith(('.jpg', '.png', '.jpeg')):
+        if file_path.endswith((".jpg", ".png", ".jpeg")):
             return self.image_parser.parse(file_path=file_path)

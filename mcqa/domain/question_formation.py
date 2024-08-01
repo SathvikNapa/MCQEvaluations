@@ -10,13 +10,13 @@ class QuestionFormationInterface(Protocol):
     """
 
     def use_raw_question(
-            self,
-            query: str,
-            options: str,
-            full_context_path: str,
-            answer: str,
-            question_format: str,
-            short_context: str
+        self,
+        query: str,
+        options: str,
+        full_context_path: str,
+        answer: str,
+        question_format: str,
+        short_context: str,
     ) -> Tuple[Any, Any]:
         """Uses a raw question as is.
 
@@ -29,7 +29,12 @@ class QuestionFormationInterface(Protocol):
         raise NotImplementedError("use_raw_question() is not implemented")
 
     def create_synthetic_questions(
-            self, query: str, options: str, full_context_path: str, answer: str, short_context: str
+        self,
+        query: str,
+        options: str,
+        full_context_path: str,
+        answer: str,
+        short_context: str,
     ) -> Tuple[Any, Any]:
         """Creates synthetic questions based on a given question.
 
@@ -43,7 +48,7 @@ class QuestionFormationInterface(Protocol):
         raise NotImplementedError("create_synthetic_questions() is not implemented")
 
     def rephrase_question(
-            self, query: str, options: str, full_context_path: str, answer: str
+        self, query: str, options: str, full_context_path: str, answer: str
     ) -> Tuple[Any, Any]:
         """Rephrases a given question.
 

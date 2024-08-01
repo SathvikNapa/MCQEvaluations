@@ -164,3 +164,14 @@ cython_debug/
 /data/
 /json_logs/
 .idea/
+.DS_Store
+analyse_headcounts.ipynb
+DataFormation.ipynb
+Evaluations.ipynb
+mcqa/mcqa_get_results.py
+multimodal_test.ipynb
+mcqa/mcqa_get_results.py
+mcqa/mcqa_get_results.py
+TestModels.ipynb
+mcqa/mcqa_get_results.py
+mcqa/mcqa_get_results.py

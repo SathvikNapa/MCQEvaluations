@@ -1,9 +1,13 @@
 from typing import Any
 
-from mcqa.models.multimodal.gemini_multimodal_response_generator import GeminiMultimodalResponseGenerator
-from mcqa.models.multimodal.openai_multimodal_response_generator import OpenaiMultimodalResponseGenerator
-from mcqa.models.text.gemini_text_response_generator import GeminiTextResponseGenerator
-from mcqa.models.text.openai_text_response_generator import OpenAITextResponseGenerator
+from mcqa.models.multimodal.gemini_multimodal_response_generator import \
+    GeminiMultimodalResponseGenerator
+from mcqa.models.multimodal.openai_multimodal_response_generator import \
+    OpenaiMultimodalResponseGenerator
+from mcqa.models.text.gemini_text_response_generator import \
+    GeminiTextResponseGenerator
+from mcqa.models.text.openai_text_response_generator import \
+    OpenAITextResponseGenerator
 
 
 class LLMRouter:
@@ -41,13 +45,17 @@ class LLMRouter:
             elif self.multimodal_model == "openai":
                 self.llm_model = OpenaiMultimodalResponseGenerator()
             else:
-                raise ValueError(f"Unsupported multimodal model: {self.multimodal_model}")
+                raise ValueError(
+                    f"Unsupported multimodal model: {self.multimodal_model}"
+                )
 
     def start_model(self):
         """Starts the selected language model."""
         self.llm_model.start_llm()
 
-    def generate_llm_response(self, system_prompt: str, user_prompt: str, multimodal_object: Any = None) -> Any:
+    def generate_llm_response(
+        self, system_prompt: str, user_prompt: str, multimodal_object: Any = None
+    ) -> Any:
         """Generates a response using the selected language model.
 
         Args:
@@ -59,7 +67,9 @@ class LLMRouter:
             str: The generated response from the language model.
         """
         if self.multimodal_model:
-            return self.llm_model.generate_multimodal_response(system_prompt, user_prompt, multimodal_object)
+            return self.llm_model.generate_multimodal_response(
+                system_prompt, user_prompt, multimodal_object
+            )
 
         if self.text_model:
             return self.llm_model.generate_response(system_prompt, user_prompt)

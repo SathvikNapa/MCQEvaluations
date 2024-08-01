@@ -20,7 +20,7 @@ class CsvLoader(InputParser):
         """Converts a CSV cell with string to a list of strings."""
         if isinstance(cell, str):
             try:
-                return ast.literal_eval(cell.replace('\u200b', ''))
+                return ast.literal_eval(cell.replace("\u200b", ""))
             except (ValueError, SyntaxError) as e:
                 logger.debug(e)
         return cell
@@ -34,11 +34,17 @@ class CsvLoader(InputParser):
             if pd.isna(row[CsvColumns.SOURCE_PATH]):
                 continue
             question = row[CsvColumns.QUERY]
-            option = re.findall(Patterns.question_options_pattern,
-                                row[CsvColumns.OPTIONS].replace('\u200b', '').replace("'", "").replace(
-                                    ']', '').replace(
-                                    ",", ""))
-            answer = row[CsvColumns.ANSWER].replace('\u200b', '').replace("'", '').strip()
+            option = re.findall(
+                Patterns.question_options_pattern,
+                row[CsvColumns.OPTIONS]
+                .replace("\u200b", "")
+                .replace("'", "")
+                .replace("]", "")
+                .replace(",", ""),
+            )
+            answer = (
+                row[CsvColumns.ANSWER].replace("\u200b", "").replace("'", "").strip()
+            )
             if not pd.isna(row[CsvColumns.SHORT_CONTEXT]):
                 short_context = row[CsvColumns.SHORT_CONTEXT]
                 # short_context = None

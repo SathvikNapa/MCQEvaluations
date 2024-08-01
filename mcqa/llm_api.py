@@ -3,10 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from mcqa.domain.response_generator import (
-    Question,
-    QuestionsFromSourcesRequest,
-)
+from mcqa.domain.response_generator import (Question,
+                                            QuestionsFromSourcesRequest)
 from mcqa.mcqa import Mcqa
 
 app = FastAPI()
@@ -58,7 +56,7 @@ def generate_responses(user_query: QuestionsFromSourcesRequest):
         file_type=user_query.file_type,
         options_randomizer=user_query.options_randomizer,
         question_format=user_query.question_format,
-        output_path=user_query.output_path
+        output_path=user_query.output_path,
     )
 
 
