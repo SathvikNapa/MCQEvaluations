@@ -16,3 +16,13 @@ class Parser(InputParser):
 
         if file_path.endswith((".jpg", ".png", ".jpeg")):
             return self.image_parser.parse(file_path=file_path)
+
+    def handle(self, file_path: str):
+        if file_path is None:
+            return None
+
+        if file_path.endswith(".pdf"):
+            return self.pdf_parser.byte_reader(file_path=file_path)
+
+        if file_path.endswith((".jpg", ".png", ".jpeg")):
+            return self.image_parser.parse(file_path=file_path)

@@ -46,7 +46,7 @@ Use the following procedure to arrive at an answer:
 6. Do not provide explanations or commentary, only the answer. 
 7. Cite the relevant text from the context to the question within the <RelevantExcerpts></RelevantExcerpts>. 
 8. If the answer is from foundational knowledge and the context has no relevant quotes, Mark the Yes/No within <FoundationalKnowledge></FoundationalKnowledge>.
-9. Compile all the information into the specified XML format and output your response inside <XML_Response></XML_Response>.
+9. Compile all the information into the specified XML format and output your response inside <MCQResponse></MCQResponse>.
 
 Some important rules for the interaction include:
 
@@ -94,7 +94,7 @@ Use the following procedure to arrive at an answer:
 5. Identify the appropriate answer and respond only with the letter representing the answer from the list of choices within <Options> provided, as if taking an exam.
 6. Do not provide explanations or commentary, only the answer.
 7. If the answer is from foundational knowledge and the context has no relevant quotes, Mark the Yes/No within <FoundationalKnowledge></FoundationalKnowledge>.
-8. Compile all the information into the specified XML format and output your response inside <XML_Response></XML_Response>.
+8. Compile all the information into the specified XML format and output your response inside <MCQResponse></MCQResponse>.
 
 Some important rules for the interaction include:
 
@@ -140,7 +140,7 @@ Use the following procedure to arrive at an answer:
 2. Go through question within <Question></Question> in full-details and break the question down in parts.
 3. Rephrase the question in different formats without altering the options and answer.
 4. Add the answer with the option identifier (example: A, B, C, .., etc) without removing any word from the option.
-5. Compile all the information into the specified XML format and output your response inside <XML_Response></XML_Response>.
+5. Compile all the information into the specified XML format and output your response inside <MCQRephrase></MCQRephrase>.
 6. Add all the questions to the response as a list of responses.
 
 

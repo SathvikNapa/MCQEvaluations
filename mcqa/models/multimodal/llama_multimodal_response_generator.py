@@ -1,40 +1,34 @@
 from dataclasses import dataclass
-from itertools import chain
 from typing import Any, List
 
-import google.generativeai as genai
+import ollama
 
 from mcqa.commons import logger
 from mcqa.domain.multimodal_response_generator import \
     MultimodalResponseGenerator
-from mcqa.models.multimodal.config.gemini_multimodal_config import \
-    GeminiMultimodalConfig
+from mcqa.models.multimodal.config.llama_multimodal_config import \
+    LlamaMultimodalConfig
 
 logger = logger.setup_logger()
 
 
 @dataclass
-class GeminiMultimodalResponseGenerator(MultimodalResponseGenerator):
+class LlamaMultimodalResponseGenerator(MultimodalResponseGenerator):
     """Class responsible for generating multimodal responses using the Gemini LLM model.
 
     This class inherits from the MultimodalResponseGenerator and implements its abstract methods.
     """
 
-    def __init__(self):
-        self.llm_model = None
-        self.gemini_config = GeminiMultimodalConfig()
+    def __init__(self, model_name="llama3.1"):
+        self.llm_model = model_name
+        self.llama_config = LlamaMultimodalConfig()
 
     def start_llm(self):
         """Starts the LLM (Language Learning Model) client.
 
         This function initializes the LLM client with the custom model specified in config.
         """
-        logger.debug(
-            f"Initiating {self.gemini_config.multimodal_generation_model} Multimodal model"
-        )
-        self.llm_model = genai.GenerativeModel(
-            self.gemini_config.multimodal_generation_model
-        )
+        logger.info(f"Using {self.llama_config.multimodal_generation_model} model")
 
     def generate_multimodal_response(
         self,
@@ -56,14 +50,12 @@ class GeminiMultimodalResponseGenerator(MultimodalResponseGenerator):
         Returns:
             str: The generated response text.
         """
-        request_object = list(
-            chain.from_iterable(
-                item if isinstance(item, list) else [item]
-                for item in [system_prompt, user_prompt, multimodal_objects[::-1]]
-            )
-        )
 
-        response = self.llm_model.generate_content(
-            (request_object),
+        prompt = system_prompt + user_prompt
+        response = ollama.generate(
+            self.llama_config.multimodal_generation_model,
+            prompt,
+            images=multimodal_objects,
         )
-        return response.text
+        logger.debug(f"Generated multimodal response: {response['response']}")
+        return response["response"]

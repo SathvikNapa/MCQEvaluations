@@ -2,6 +2,8 @@ from typing import Any
 
 from mcqa.models.multimodal.gemini_multimodal_response_generator import \
     GeminiMultimodalResponseGenerator
+from mcqa.models.multimodal.llama_multimodal_response_generator import \
+    LlamaMultimodalResponseGenerator
 from mcqa.models.multimodal.openai_multimodal_response_generator import \
     OpenaiMultimodalResponseGenerator
 from mcqa.models.text.gemini_text_response_generator import \
@@ -44,6 +46,8 @@ class LLMRouter:
                 self.llm_model = GeminiMultimodalResponseGenerator()
             elif self.multimodal_model == "openai":
                 self.llm_model = OpenaiMultimodalResponseGenerator()
+            elif self.multimodal_model == "llama":
+                self.llm_model = LlamaMultimodalResponseGenerator("llama3.1")
             else:
                 raise ValueError(
                     f"Unsupported multimodal model: {self.multimodal_model}"

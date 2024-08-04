@@ -25,6 +25,8 @@ from mcqa.llm_router import LLMRouter
 logger = logger.setup_logger()
 from mcqa.base.question_formation import QuestionFormation
 
+OPENMODELS = ["llama", "phi"]
+
 
 class Mcqa(McqaInterface):
     """Class to handle MCQA (Multiple Choice Question Answering) operations."""
@@ -109,10 +111,16 @@ class Mcqa(McqaInterface):
             user_prompt, system_prompt = prompt_object
 
             self.request.attachments.append(self.request.full_context_path)
-            parsed_multimodal_objects = [
-                self.input_parser.parse(file_path=path)
-                for path in self.request.attachments
-            ]
+            if self.model in OPENMODELS:
+                parsed_multimodal_objects = [
+                    self.input_parser.handle(file_path=path)
+                    for path in self.request.attachments
+                ]
+            else:
+                parsed_multimodal_objects = [
+                    self.input_parser.parse(file_path=path)
+                    for path in self.request.attachments
+                ]
 
             response = self.llm_router.generate_llm_response(
                 system_prompt=system_prompt,
@@ -167,7 +175,7 @@ class Mcqa(McqaInterface):
             )
 
         if re.search(
-                "|".join(["pdf", "png", "jpeg", "jpg"]), self.request.full_context_path
+            "|".join(["pdf", "png", "jpeg", "jpg"]), self.request.full_context_path
         ):
             self._start_llm()
             prompt_object, options_text, answer = (
@@ -182,10 +190,17 @@ class Mcqa(McqaInterface):
                 )
             )
             self.request.attachments.append(self.request.full_context_path)
-            parsed_multimodal_objects = [
-                self.input_parser.parse(file_path=path)
-                for path in self.request.attachments
-            ]
+
+            if self.model in OPENMODELS:
+                parsed_multimodal_objects = [
+                    self.input_parser.handle(file_path=path)
+                    for path in self.request.attachments
+                ]
+            else:
+                parsed_multimodal_objects = [
+                    self.input_parser.parse(file_path=path)
+                    for path in self.request.attachments
+                ]
             (
                 user_prompt,
                 system_prompt,
@@ -244,12 +259,12 @@ class Mcqa(McqaInterface):
             return rephrased_questions
 
     def generate_response_from_files(
-            self,
-            file_path: str,
-            file_type: str,
-            question_format: str,
-            output_path: str,
-            options_randomizer: bool = False,
+        self,
+        file_path: str,
+        file_type: str,
+        question_format: str,
+        output_path: str,
+        options_randomizer: bool = False,
     ):
         """Generates responses for queries from a file.
 
@@ -268,23 +283,23 @@ class Mcqa(McqaInterface):
 
             final_responses = []
             for _n, (
-                    query,
-                    option,
-                    answer,
-                    context,
-                    short_context,
-                    options_randomizer,
+                query,
+                option,
+                answer,
+                context,
+                short_context,
+                options_randomizer,
             ) in tqdm.tqdm(enumerate(extracted_requests)):
                 # if _n < 5:
                 #     continue
                 request_payload = Question(
-                    query=query,
+                    question=query,
                     options=option,
                     answer=answer,
                     options_randomizer=options_randomizer,
                     question_format=question_format,
-                    long_context=context,
-                    short_context=short_context,
+                    full_context_path=context,
+                    question_context=short_context,
                 )
                 try:
                     request_obj = Mcqa(request=request_payload)
@@ -299,7 +314,7 @@ class Mcqa(McqaInterface):
                     # Extracting the output
                     os.makedirs(output_path, exist_ok=True)
                     with open(
-                            f"{output_path}/request_responseLog_geminiPro_{_n}.json", "w"
+                        f"{output_path}/request_responseLog_llama8b_{_n}.json", "w"
                     ) as f:
                         request_res_dict = request_response_log.dict()
                         pretty_request_res_dict = json.dumps(request_res_dict, indent=4)
@@ -313,7 +328,7 @@ class Mcqa(McqaInterface):
                         request=pretty_request_dict, exception=str(e)
                     )
                     with open(
-                            f"{output_path}/exception_log_geminiPro_{_n}.json", "w"
+                        f"{output_path}/exception_log_llama8b_{_n}.json", "w"
                     ) as f:
                         exception_dict = exception_log.dict()
                         pretty_exception_dict = json.dumps(exception_dict, indent=4)

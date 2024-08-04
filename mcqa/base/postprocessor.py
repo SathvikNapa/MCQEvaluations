@@ -47,12 +47,12 @@ class PostProcessor(PostProcessorInterface):
         return pattern.findall(text)
 
     def naive_postprocess(
-            self,
-            generated_response: str,
-            actual_answer: str,
-            question: str,
-            options: str,
-            model: str,
+        self,
+        generated_response: str,
+        actual_answer: str,
+        question: str,
+        options: str,
+        model: str,
     ):
         generated_answer = self._extract_regex(
             Patterns.answer, generated_response, generated_response
@@ -71,12 +71,12 @@ class PostProcessor(PostProcessorInterface):
         )
 
     def postprocess(
-            self,
-            generated_response: str,
-            actual_answer: str,
-            question: str,
-            options: str,
-            model: str,
+        self,
+        generated_response: str,
+        actual_answer: str,
+        question: str,
+        options: str,
+        model: str,
     ) -> QuestionResponse:
         """Post-processes the response to extract relevant fields and evaluate the answer.
 

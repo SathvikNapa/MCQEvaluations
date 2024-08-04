@@ -53,7 +53,7 @@ pytest-cov = "==4.1.0"
 pytest-instafail = "==0.5.0"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=1.2.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
@@ -73,7 +73,7 @@ exclude = '''
   | dist
   | site-packages
   | venv
-  pyproject\.toml
+  pyproject.toml
   .env.example
 )/
 '''

@@ -45,3 +45,7 @@ class PdfParser(InputParser):
 
     def upload_pdf(self, file_path: str):
         return genai.upload_file(file_path)
+
+    def byte_reader(self, file_path: str):
+        with open(file_path, "rb") as file:
+            return base64.b64encode(file.read()).decode("utf-8")
